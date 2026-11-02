@@ -1,0 +1,881 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>D&D Character Creator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>:root{--bg:#faf6ee;--fg:#2a2118;--ac:#7a1f1f;--card:#fff;--bd:#d9cdb5}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#1c1814;--fg:#eee3d0;--ac:#e08a6a;--card:#2a241d;--bd:#4a3f31}}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--fg);font:15px/1.45 Georgia,serif;margin:0;padding:12px;max-width:900px;margin:auto}
+h1{color:var(--ac);margin:.2em 0}h2{color:var(--ac);font-size:1.05em;border-bottom:1px solid var(--bd);margin:1.2em 0 .4em}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:10px}
+label{display:block;font-size:.85em;margin:.4em 0 .1em}select,input,textarea{width:100%;box-sizing:border-box;padding:6px;font:inherit;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:5px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.sk{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:2px}.sk label{display:flex;gap:6px;margin:0;font-size:.9em}.sk input{width:auto}
+button{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:10px 16px;font:inherit;cursor:pointer;margin-top:12px}
+.sum{font-family:monospace;white-space:pre-wrap;font-size:.85em}.hint{font-size:.8em;opacity:.75}.q{display:inline-block;width:1.4em;height:1.4em;line-height:1.4em;text-align:center;border-radius:50%;background:var(--ac);color:#fff;font-size:.75em;text-decoration:none;cursor:help;vertical-align:middle}.ch{margin:.7em 0}.co{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:4px 10px}.co label{display:flex;gap:6px;margin:0;font-size:.9em}.co input{width:auto}.co small{display:block;opacity:.75}.step h2{margin-top:.6em}.why{background:var(--card);border-left:3px solid var(--ac);padding:6px 10px;border-radius:4px;font-size:.88em;margin:.4em 0}
+body.guided .step{display:none}body.guided .step.on{display:block}body:not(.guided) .why{display:none}body:not(.guided) #gbar,body:not(.guided) #gpills{display:none}
+#gpills{display:flex;flex-wrap:wrap;gap:4px;margin:.6em 0}.pill{border:1px solid var(--bd);border-radius:14px;padding:3px 9px;font-size:.78em;cursor:pointer;background:var(--card);color:var(--fg);margin:0}.pill.on{background:var(--ac);color:#fff;border-color:var(--ac)}.pill.bad::after{content:" \26A0"}.pill.skip{opacity:.5}
+#gbar{position:sticky;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 4px;background:var(--bg);border-top:1px solid var(--bd);margin-top:14px}#gbar button{margin:0}#gbar span{font-size:.85em;opacity:.8;text-align:center}
+button.sec{background:transparent;color:var(--ac);border:1px solid var(--ac)}button:disabled{opacity:.35;cursor:default}
+.rowb{display:flex;flex-wrap:wrap;gap:8px;align-items:end}.rowb>div{flex:1;min-width:150px}.rowb button{margin:0}
+.spn{font-size:.9em;margin:.3em 0}.sf{display:flex;flex-wrap:wrap;gap:4px;margin:.3em 0}.sf button{margin:0;padding:3px 10px;font-size:.78em;border-radius:14px}.sf button.on{background:var(--ac);color:#fff}.sf button:not(.on){background:transparent;color:var(--ac);border:1px solid var(--ac)}
+.sgh{font-size:.9em;color:var(--ac);margin:.9em 0 .3em;border-bottom:1px dotted var(--bd)}.spg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px}
+.spc{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--bd);border-radius:6px;padding:6px 8px;margin:0;font-size:.88em}.spc input{width:auto;margin-top:3px}.spc small{display:block;opacity:.8}.spc.dis{opacity:.45}.chip{display:inline-block;font-size:.68em;border:1px solid var(--bd);border-radius:10px;padding:0 6px;margin-left:4px;opacity:.85}
+#wr ul{margin:.3em 0;padding-left:1.2em}#wr li{margin:.2em 0}#wr button{margin:0 0 0 6px;padding:1px 8px;font-size:.78em}.ok{color:#2e7d32}.fin{font-size:.8em;opacity:.8}
+#pv{position:fixed;inset:0;background:#e9e4d8;overflow:auto;z-index:50;color:#222;font:12px/1.4 Helvetica,Arial,sans-serif}
+.pvbar{position:sticky;top:0;background:#5c1e1e;color:#fff;padding:8px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;z-index:2}.pvbar button{margin:0;background:#fff;color:#5c1e1e;padding:6px 12px}.pvbar span{font-size:12px;flex:1;min-width:200px}
+.ps{max-width:8in;margin:10px auto;background:#fff;padding:.35in;box-shadow:0 1px 8px #0003;box-sizing:border-box}
+.ps h1{color:#5c1e1e;font-size:24px;margin:0;line-height:1.1}.ps p{margin:0}.ps .ph{display:flex;justify-content:space-between;border-bottom:2px solid #5c1e1e;padding-bottom:6px;margin-bottom:8px;gap:12px}.ps .pr{text-align:right;font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}.stats div{border:1px solid #5c1e1e;border-radius:5px;background:#faf7f0;text-align:center;padding:5px}.stats b{display:block;font-size:17px}.stats small{font-size:8px;color:#666;font-weight:700}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start}.pc{border:1px solid #cdc3b4;background:#faf7f0;border-radius:5px;padding:7px 8px;margin-bottom:8px;break-inside:avoid}.pc h4{margin:0 0 5px;color:#5c1e1e;font-size:10px;text-transform:uppercase;border-bottom:1px solid #cdc3b4;padding-bottom:3px}
+.ab{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.ab div{background:#fff;border:1px solid #cdc3b4;border-radius:4px;text-align:center;padding:3px}.ab b{display:block;font-size:16px}.ab small{color:#5c1e1e;font-weight:700}
+.sr{display:flex;justify-content:space-between;border-bottom:1px dotted #ddd;padding:1px 0;font-size:10px}.dot{display:inline-block;width:7px;height:7px;border:1px solid #777;border-radius:50%;margin-right:4px}.dot.f{background:#5c1e1e;border-color:#5c1e1e}.exp{background:#5c1e1e;color:#fff;font-size:7px;border-radius:2px;padding:0 3px;margin-left:3px}
+.pc ul{padding:0;margin:0}.pc li{margin:0 0 3px 12px;font-size:10px}.pc p{font-size:10px;margin:0 0 4px}.pc .k{color:#7a5428;font-weight:700;font-size:9px;text-transform:uppercase}
+.fc{border:1px solid #cdc3b4;border-left:3px solid #5c1e1e;background:#faf7f0;border-radius:4px;padding:6px 8px;margin-bottom:6px;break-inside:avoid}.fc b{color:#5c1e1e;font-size:12px}.fc small{display:block;color:#7a5428;font-weight:700;font-size:8px;text-transform:uppercase}.fc p{margin:3px 0 0;font-size:10.5px}
+.slotrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}.dot.big{width:11px;height:11px;margin:0 3px}.two{columns:2;column-gap:10px}.bn{background:#5c1e1e;color:#fff;font-weight:700;font-size:11px;text-transform:uppercase;padding:3px 8px;border-radius:3px;margin:8px 0 6px}.sh{color:#7a5428;font-weight:700;font-size:10px;text-transform:uppercase;border-bottom:1px solid #cdc3b4;margin:8px 0 5px}
+
+body.pm>*:not(#party):not(#pv):not(h1):not(#modebar):not(script){display:none!important}
+#modebar{display:flex;gap:6px;margin:.4em 0}#modebar .pill{font-size:.9em;padding:5px 14px}
+#party{display:none}body.pm #party{display:block}
+#party .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:.6em 0}#party button{margin:0;padding:6px 12px;font-size:.88em}
+#party textarea{min-height:80px;font:12px monospace}
+.ptw{overflow-x:auto;border:1px solid var(--bd);border-radius:8px;background:var(--card)}
+.pt{border-collapse:collapse;width:100%;font-size:.85em;white-space:nowrap}.pt th{font-size:.7em;text-transform:uppercase;letter-spacing:.05em;text-align:right;padding:6px 8px;color:var(--ac);border-bottom:1px solid var(--bd)}.pt td{text-align:right;padding:5px 8px;border-bottom:1px dotted var(--bd);font-variant-numeric:tabular-nums}.pt th:first-child,.pt td:first-child,.pt th:nth-child(2),.pt td:nth-child(2){text-align:left}
+.pg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;margin-top:10px}
+.pcard{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:10px;min-width:0}.pcard.dn{border-color:#b3261e}
+.pcard h3{margin:0;font-size:1.05em;color:var(--ac)}.pcard .sub{font-size:.78em;opacity:.8}
+.hpb{height:10px;border-radius:5px;background:var(--bd);overflow:hidden;margin:6px 0}.hpb i{display:block;height:100%;background:#2e7d32}.hpb i.m{background:#c77d00}.hpb i.l{background:#b3261e}
+.hpr{display:flex;flex-wrap:wrap;gap:4px;align-items:center}.hpr input{width:4.2em;text-align:center}.hpr button{padding:4px 9px}
+.big{font-size:1.5em;font-weight:700;font-variant-numeric:tabular-nums}
+.cd{display:flex;flex-wrap:wrap;gap:3px;margin:6px 0}.cd button{margin:0;padding:2px 8px;font-size:.72em;border-radius:12px;background:transparent;color:var(--ac);border:1px solid var(--bd)}.cd button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.pst{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:.75em;margin:6px 0}.pst div{border:1px solid var(--bd);border-radius:5px;text-align:center;padding:2px}.pst b{display:block;font-size:1.25em}
+.pcard textarea{min-height:44px;font-size:.82em}.pcard .row2{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.pcard .row2 button{padding:4px 9px;font-size:.78em}
+.ds label{display:inline-flex;gap:3px;align-items:center;margin:0 6px 0 0;font-size:.75em}.ds input{width:auto}
+.pm-msg{font-size:.85em;margin:.4em 0}
+@page{size:letter;margin:.35in}
+@media print{body>*:not(#pv){display:none!important}#pv{position:static;overflow:visible;background:#fff}.pvbar{display:none}.ps{box-shadow:none;max-width:none;margin:0;padding:0}.pgb{break-before:page}.ps,.ps *{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<h1>D&amp;D 5e (2024) Character Creator</h1><p class="hint">Levels 1-5 · Player's Handbook species, backgrounds, classes and subclasses. <label style="display:inline-flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="gd" checked style="width:auto"> Guided mode (one step at a time)</label></p>
+<div id="modebar"><button type="button" id="mcr" class="pill on">Character creator</button><button type="button" id="mpt" class="pill">DM party tracker</button></div>
+<div id="gpills"></div>
+<section class="step on" id="st1" data-n="1" data-t="The basics"><h2>Step 1: The basics</h2><p class="why">Start with who your character is. Species gives traits like darkvision, Background gives two skills and a starting feat, Class is your main job in the party. Not sure? Press the sparkle button to fill in a good beginner build for your class.</p><div class="card"><label>Character name<input id="name" placeholder="e.g. Rhys Wildwood"></label>
+<div class="g"><div><label>Level<select id="lv"><option>1<option>2<option selected>3<option>4<option>5</select></label></div><div><label>1. Species <a class="q" id="q-sp" target="_blank" rel="noopener" title="Click to search D&amp;D Beyond">?</a><select id="sp"></select></label><p class="hint" id="d-sp"></p></div><div><label>2. Background <a class="q" id="q-bg" target="_blank" rel="noopener" title="Click to search D&amp;D Beyond">?</a><select id="bg"></select></label><p class="hint" id="d-bg"></p></div>
+<div><label>3. Class <a class="q" id="q-cl" target="_blank" rel="noopener" title="Click to search D&amp;D Beyond">?</a><select id="cl"></select></label><p class="hint" id="d-cl"></p></div><div><label>4. Subclass (from level 3) <a class="q" id="q-sub" target="_blank" rel="noopener" title="Click to search D&amp;D Beyond">?</a><select id="sub"></select></label><p class="hint" id="d-sub"></p></div>
+<div><label>5. Alignment <a class="q" id="q-al" target="_blank" rel="noopener" title="Click to search D&amp;D Beyond">?</a><select id="al"></select></label></div></div><p class="hint" id="lvh"></p></div>
+<div class="card" style="margin-top:8px"><button id="recall" type="button" style="margin:0">&#10024; Fill in a recommended beginner build for this class</button><p class="hint">Sets ability scores, subclass (level 3+), skills, special choices and spells to beginner-friendly picks. You can change anything afterwards.</p></div>
+<details class="card" style="margin-top:8px"><summary>Have a character code from a friend (or an earlier save)? Load it here</summary><label>Paste the character code<textarea id="ldt" rows="3" placeholder="DND5E-CHAR-1:..."></textarea></label><label>...or choose a saved .txt file<input type="file" id="ldf" accept=".txt,.json,text/plain"></label><button id="ldb" type="button">Load character</button><p class="hint" id="ldm"></p></details></section>
+<section class="step" id="st2" data-n="2" data-t="Ability scores"><h2>Step 2: Ability scores</h2><p class="why">Six numbers describe your strengths. 10 is average, and every 2 points above that adds +1 to your rolls. Put your biggest number in your class's main stat. "Use recommended" does this for you; you can still tweak it.</p><div class="card"><div class="rowb"><div><label>Method<select id="abm"><option value="std">Standard array (easiest)</option><option value="pb">Point buy (27 points)</option></select></label></div><div><button id="abrec" type="button" class="sec">Use recommended for my class</button></div></div><p class="hint" id="abwhy"></p><p class="hint" id="abpts"></p><div class="g" id="ab"></div>
+<div class="g"><div><label>Background +2 to<select id="b2"></select></label></div><div><label>Background +1 to<select id="b1"></select></label></div></div><p id="aberr" class="hint"></p></div></section>
+<section class="step" id="st3" data-n="3" data-t="Skills"><h2>Step 3: Skills</h2><p class="why">Skills are what you are trained in outside combat: sneaking, persuading, spotting danger, and so on. Pick the number your class allows; your background already gave you two.</p><div class="card"><p class="hint" id="skh"></p><div class="sk" id="sk"></div><button id="recsk" type="button" class="sec">Pick recommended skills</button></div></section>
+<section class="step" id="st4" data-n="4" data-t="Special choices"><h2>Step 4: Special choices</h2><p class="why">Some classes, species and feats have extra choices that shape how your character plays. The defaults are fine to start with; read the short description under each option.</p><div class="card" id="chs"></div><button id="recch" type="button" class="sec">Pick recommended options</button></section>
+<section class="step" id="st5" data-n="5" data-t="Starting gear"><h2>Step 5: Starting gear</h2><p class="why">Pick a ready-made kit of armor and weapons for your class. Your armor class and attack bonuses are worked out for you.</p><div class="card"><label>Choose a starting kit for your class<select id="kit"></select></label><p class="hint" id="kd"></p><p class="hint" id="gw"></p><p class="hint">Your AC and attack bonuses are worked out from the kit for you. Barbarians, Fighters, Paladins, Rangers and Rogues also get Weapon Mastery: a free bonus effect when they attack with certain weapons. It's explained on your sheet.</p><div hidden><div class="g"><div><label>Armor<select id="ar"></select></label></div><div><label>Shield<select id="sh"></select></label></div><div><label>Weapon 1<select id="w1"></select></label></div><div><label>Weapon 2<select id="w2"></select></label></div><div><label>Weapon 3<select id="w3"></select></label></div></div></div></div></section>
+<section class="step" id="st6" data-n="6" data-t="Spells"><h2>Step 6: Spells</h2><p class="why">Spells are your magic. Cantrips can be cast all day for free; leveled spells use up spell slots. Starred spells are good first picks for your class.</p><div class="card"><p class="hint" id="sph"></p><div id="spct"></div><div id="spk"></div><button id="recsp" type="button" class="sec">Pick recommended spells</button></div></section>
+<section class="step" id="st7" data-n="7" data-t="Notes & story"><h2>Step 7: Notes, gear, story</h2><p class="why">Optional: extra gear, house-rule notes and your character's story. Everything here is added to the PDF.</p><div class="card"><label>Other spells / homebrew notes (optional)<textarea id="spl" rows="4"></textarea></label>
+<label>Extra inventory (one item per line; your kit from step 5 is added to the sheet automatically)<textarea id="inv" rows="4"></textarea></label><label>Backstory / personality<textarea id="bio" rows="3"></textarea></label></div></section>
+<section class="step" id="st8" data-n="8" data-t="Review & download"><h2>Step 8: Review and download</h2><p class="why">Check the list below, fix anything flagged, then download your sheet. You can come back and change things any time.</p><div class="card" id="wr"></div>
+<h2>Save or share your character</h2><div class="card"><p class="hint">Copy this code and send it to your DM (Discord, text, email). Your DM can paste it into "Load" on step 1 to open your sheet, print it and download the PDF. You can also keep it to come back and edit later.</p><textarea id="cc" rows="4" readonly></textarea><button id="ccc" type="button">Copy code</button> <button id="ccd" type="button" class="sec">Save as .txt file</button><p class="hint" id="ccm"></p></div>
+<h2>Summary</h2><div class="card sum" id="sum"></div><button id="pdf">Download character sheet (PDF)</button> <button id="pvb" type="button" class="sec">Open printable version</button><p class="hint">If the download is blocked for you, use "Open printable version". On a phone, tap "Save pages as images" there and press-and-hold each page to save it; on a computer, print and choose "Save as PDF".</p></section><div id="pv" hidden></div>
+<div id="gbar"><button id="gback" type="button" class="sec">&larr; Back</button><span id="gstep"></span><button id="gnext" type="button">Next &rarr;</button></div>
+<div id="party"><h2>DM party tracker</h2>
+<p class="hint">Paste the character codes your players send you (several at once is fine), or add the .txt files they send. Everything is saved in this browser only, so use the same device each session. Use Copy party backup now and then in case you clear your browser data.</p>
+<div class="card"><textarea id="pin" placeholder="Paste one or more character codes here"></textarea>
+<div class="bar"><button id="padd" type="button">Add to party</button><label class="sec" style="display:inline-block;border:1px solid var(--ac);color:var(--ac);border-radius:6px;padding:5px 12px;margin:0;cursor:pointer">Add .txt files<input id="pfl" type="file" accept=".txt,.md,.json,text/plain" multiple hidden></label><span id="pmsg" class="pm-msg"></span></div></div>
+<div id="pbody"></div></div>
+<script>
+const AB=["STR","DEX","CON","INT","WIS","CHA"],A0={S:0,D:1,C:2,I:3,W:4,H:5};
+const SK="Acrobatics:D,Animal Handling:W,Arcana:I,Athletics:S,Deception:H,History:I,Insight:W,Intimidation:H,Investigation:I,Medicine:W,Nature:I,Perception:W,Performance:H,Persuasion:H,Religion:I,Sleight of Hand:D,Stealth:D,Survival:W".split(",").map(s=>s.split(":"));
+const ALL=SK.map(s=>s[0]);
+// class: hit die | saves | #skills | pool ("" = any) | subclasses
+const CL={Barbarian:[12,"STR,CON",2,"Animal Handling,Athletics,Intimidation,Nature,Perception,Survival","Path of the Berserker,Path of the Wild Heart,Path of the World Tree,Path of the Zealot"],
+Bard:[8,"DEX,CHA",3,"","College of Dance,College of Glamour,College of Lore,College of Valor"],
+Cleric:[8,"WIS,CHA",2,"History,Insight,Medicine,Persuasion,Religion","Life Domain,Light Domain,Trickery Domain,War Domain"],
+Druid:[8,"INT,WIS",2,"Arcana,Animal Handling,Insight,Medicine,Nature,Perception,Religion,Survival","Circle of the Land,Circle of the Moon,Circle of the Sea,Circle of the Stars"],
+Fighter:[10,"STR,CON",2,"Acrobatics,Animal Handling,Athletics,History,Insight,Intimidation,Persuasion,Perception,Survival","Battle Master,Champion,Eldritch Knight,Psi Warrior"],
+Monk:[8,"STR,DEX",2,"Acrobatics,Athletics,History,Insight,Religion,Stealth","Warrior of Mercy,Warrior of Shadow,Warrior of the Elements,Warrior of the Open Hand"],
+Paladin:[10,"WIS,CHA",2,"Athletics,Insight,Intimidation,Medicine,Persuasion,Religion","Oath of Devotion,Oath of Glory,Oath of the Ancients,Oath of Vengeance"],
+Ranger:[10,"STR,DEX",3,"Animal Handling,Athletics,Insight,Investigation,Nature,Perception,Stealth,Survival","Beast Master,Fey Wanderer,Gloom Stalker,Hunter"],
+Rogue:[8,"DEX,INT",4,"Acrobatics,Athletics,Deception,Insight,Intimidation,Investigation,Perception,Persuasion,Sleight of Hand,Stealth","Arcane Trickster,Assassin,Soulknife,Thief"],
+Sorcerer:[6,"CON,CHA",2,"Arcana,Deception,Insight,Intimidation,Persuasion,Religion","Aberrant Sorcery,Clockwork Sorcery,Draconic Sorcery,Wild Magic Sorcery"],
+Warlock:[8,"WIS,CHA",2,"Arcana,Deception,History,Intimidation,Investigation,Nature,Religion","Archfey Patron,Celestial Patron,Fiend Patron,Great Old One Patron"],
+Wizard:[6,"INT,WIS",2,"Arcana,History,Insight,Investigation,Medicine,Nature,Religion","Abjurer,Diviner,Evoker,Illusionist"]};
+// background: abilities | origin feat | skills
+const BG={Acolyte:"INT,WIS,CHA|Magic Initiate (Cleric)|Insight,Religion",Artisan:"STR,DEX,INT|Crafter|Investigation,Persuasion",Charlatan:"DEX,CON,CHA|Skilled|Deception,Sleight of Hand",Criminal:"DEX,CON,INT|Alert|Sleight of Hand,Stealth",Entertainer:"STR,DEX,CHA|Musician|Acrobatics,Performance",Farmer:"STR,CON,WIS|Tough|Animal Handling,Nature",Guard:"STR,INT,WIS|Alert|Athletics,Perception",Guide:"DEX,CON,WIS|Magic Initiate (Druid)|Stealth,Survival",Hermit:"CON,WIS,CHA|Healer|Medicine,Religion",Merchant:"CON,INT,CHA|Lucky|Animal Handling,Persuasion",Noble:"STR,INT,CHA|Skilled|History,Persuasion",Sage:"CON,INT,WIS|Magic Initiate (Wizard)|Arcana,History",Sailor:"STR,DEX,WIS|Tavern Brawler|Acrobatics,Perception",Scribe:"DEX,INT,WIS|Skilled|Investigation,Perception",Soldier:"STR,DEX,CON|Savage Attacker|Athletics,Intimidation",Wayfarer:"DEX,WIS,CHA|Lucky|Insight,Stealth"};
+// species: speed | traits
+const SP={Aasimar:[30,"Celestial Resistance (resist necrotic & radiant); Darkvision 60 ft; Healing Hands (heal PB d4s, 1/long rest); Light Bearer (Light cantrip)."],
+Dragonborn:[30,"Draconic Ancestry (pick a dragon type); Breath Weapon (1d10 damage, 2d10 at level 5); Damage Resistance (matches ancestry); Darkvision 60 ft."],
+Dwarf:[30,"Darkvision 120 ft; Dwarven Resilience (resist poison, adv. vs poisoned); Dwarven Toughness (+1 HP per level); Stonecunning (tremorsense on stone, bonus action)."],
+Elf:[30,"Darkvision 60 ft; Elven Lineage (Drow, High Elf or Wood Elf — pick one); Fey Ancestry (adv. vs Charmed); Keen Senses (proficiency in a skill); Trance (4-hr rest)."],
+Gnome:[30,"Darkvision 60 ft; Gnomish Cunning (adv. on INT, WIS, CHA saves); Gnomish Lineage (Forest or Rock Gnome — pick one)."],
+Goliath:[35,"Giant Ancestry (pick a giant boon, PB uses/long rest); Large Form (at level 5); Powerful Build (adv. on grapple escapes, carry more)."],
+Halfling:[30,"Brave (adv. vs Frightened); Halfling Nimbleness (move through larger creatures); Luck (reroll natural 1s); Naturally Stealthy (hide behind larger creatures)."],
+Human:[30,"Resourceful (Heroic Inspiration after each long rest); Skillful (proficiency in one extra skill); Versatile (an extra Origin feat)."],
+Orc:[30,"Adrenaline Rush (Dash as bonus action, gain temp HP); Darkvision 120 ft; Relentless Endurance (drop to 1 HP instead of 0, 1/long rest)."],
+Tiefling:[30,"Darkvision 60 ft; Fiendish Legacy (Abyssal, Chthonic or Infernal — pick one: resistance + spells); Otherworldly Presence (Thaumaturgy cantrip)."]};
+const CF={Warlock:["Eldritch Invocations: You know @N@ invocations: permanent magical upgrades such as Pact of the Blade (conjure a weapon), Agonizing Blast (add CHA to Eldritch Blast damage) or Armor of Shadows (cast Mage Armor at will). Choose from the PHB list with your DM.","Pact Magic: You cast spells with Charisma. Your slots are all the same level (see Spellcasting) and come back on a short rest.","Magical Cunning: Once per long rest, spend 1 minute to regain half your spell slots (rounded up)."],Rogue:["Expertise: Double your proficiency bonus on two skills you are proficient in.","Sneak Attack (2d6): Once per turn, add 2d6 damage to a hit with a Finesse or Ranged weapon if you have Advantage, or if an ally is within 5 ft of the target and you don't have Disadvantage.","Thieves' Cant: You know Thieves' Cant (a secret mix of dialect, jargon and code) plus one other language of your choice.","Weapon Mastery: Use the mastery property of two weapons you are proficient with.","Cunning Action: Bonus Action to Dash, Disengage or Hide.","Steady Aim: Bonus Action for Advantage on your next attack this turn. Only if you haven't moved this turn, and your Speed becomes 0 until the end of the turn.","Cunning Strike: When you Sneak Attack you can give up some Sneak Attack dice to add an effect: Poison, Trip or Withdraw.","Uncanny Dodge: Reaction to halve the damage of an attack you can see."],Bard:["Bardic Inspiration (d6): Bonus Action, give a creature within 60 ft a d6 to add to a failed d20 roll in the next hour. Uses = CHA modifier, regained on a long rest.","Spellcasting: You cast spells with Charisma and can use an instrument as your focus.","Expertise: Double your proficiency bonus on two skills you know.","Jack of All Trades: Add half your proficiency bonus to checks you aren't proficient in.","Font of Inspiration: You regain all your Bardic Inspiration uses on a short or long rest, and you can spend a spell slot to regain one use."],Barbarian:["Rage: Bonus Action, 3 uses per long rest. Gain +2 melee damage, resistance to bludgeoning, piercing and slashing, and Advantage on STR checks and saves. You can't cast spells while raging.","Unarmored Defense: Without armor, AC = 10 + DEX + CON modifiers.","Weapon Mastery: Use the mastery property of two weapons you are proficient with.","Danger Sense: Advantage on DEX saves against effects you can see.","Reckless Attack: Advantage on STR attacks this turn, but attacks against you have Advantage too.","Primal Knowledge: Gain proficiency in one extra Barbarian skill.","Extra Attack: Attack twice, instead of once, when you take the Attack action.","Fast Movement: Your speed increases by 10 ft while you aren't wearing heavy armor."],Druid:["Druidic: You know the secret druid language and can always prepare Speak with Animals.","Spellcasting: You cast spells with Wisdom and use a Druidic Focus.","Primal Order: Choose Magician (extra cantrip, bonus to Arcana/Nature) or Warden (medium armor and martial weapons).","Wild Shape: Bonus Action, 2 uses per long rest, to become a beast (CR 1/4, no flying speed). You gain temporary HP equal to your Druid level.","Wild Companion: Spend a Wild Shape use to cast Find Familiar.","Wild Resurgence: If you have no Wild Shape uses left you can spend a spell slot to regain one (no action). Once per long rest you can spend a Wild Shape use to regain a level 1 slot."],Wizard:["Spellcasting: You cast spells with Intelligence from your spellbook.","Ritual Adept: Cast spellbook spells with the Ritual tag without using a slot.","Arcane Recovery: Once per day after a short rest, regain spell slots with combined level up to half your Wizard level (rounded up).","Scholar: Gain Expertise in one of Arcana, History, Investigation, Medicine, Nature or Religion.","Memorize Spell: Whenever you finish a Short Rest, you can swap one prepared level 1+ spell for another spell from your spellbook."],
+Cleric:["Spellcasting: You cast spells with Wisdom, using a Holy Symbol as your focus, and prepare spells from the Cleric list after each long rest.","Divine Order: Choose Protector (training with martial weapons and heavy armor) or Thaumaturge (an extra cantrip and a bonus to Arcana and Religion checks equal to your WIS modifier).","Channel Divinity: 2 uses (regain one on a short rest, all on a long rest). Divine Spark: heal a creature, or deal radiant or necrotic damage to it, using d8s equal to your proficiency bonus. Turn Undead: undead within 30 ft make a WIS save or are Frightened and Incapacitated for a minute.","Sear Undead: When you use Turn Undead, each undead that fails the save also takes radiant damage (WIS modifier d8s)."],
+Fighter:["Fighting Style: Choose a Fighting Style feat, such as Archery (+2 to ranged attacks), Defense (+1 AC while armored) or Great Weapon Fighting.","Second Wind: Bonus Action to regain 1d10 + your Fighter level HP. You have @S@ uses; you regain one on a short rest and all on a long rest.","Weapon Mastery: Use the mastery property of three weapons you are proficient with.","Action Surge: Take one extra action on your turn (not the Magic action). One use per short or long rest.","Tactical Mind: When you fail an ability check, spend a Second Wind use to add 1d10 to the roll; the use is kept if the check still fails.","Extra Attack: Attack twice, instead of once, when you take the Attack action.","Tactical Shift: When you use Second Wind, you can move up to half your Speed without provoking opportunity attacks."],
+Monk:["Martial Arts: Unarmed Strikes and Monk weapons can use DEX, and an Unarmed Strike deals a @D@ plus your modifier. After you attack with a Monk weapon or Unarmed Strike you can make an Unarmed Strike as a Bonus Action.","Unarmored Defense: Without armor or a shield, AC = 10 + DEX + WIS modifiers.","Monk's Focus: You have Focus Points equal to your Monk level (regained on a short or long rest). Spend 1 for Flurry of Blows (two Unarmed Strikes as a Bonus Action), Patient Defense (Disengage plus Dodge) or Step of the Wind (Dash plus Disengage, longer jumps). Focus save DC = 8 + proficiency bonus + WIS.","Unarmored Movement: Your speed increases by 10 ft while you wear no armor and carry no shield.","Uncanny Metabolism: Once per long rest, when you roll Initiative, regain all Focus Points and heal for your Martial Arts die + Monk level.","Deflect Attacks: Reaction to reduce damage from an attack by 1d10 + DEX + Monk level. If you reduce it to 0, spend 1 Focus Point to redirect it.","Slow Fall: Reaction to reduce falling damage by 5 x your Monk level.","Extra Attack: Attack twice, instead of once, when you take the Attack action.","Stunning Strike: Once per turn when you hit, spend 1 Focus Point: the target makes a CON save or is Stunned until the start of your next turn."],
+Paladin:["Lay On Hands: A pool of healing equal to 5 x your Paladin level (refills on a long rest). Bonus Action: touch a creature to restore HP from the pool, or spend 5 points to remove Poisoned.","Spellcasting: You cast spells with Charisma, using a Holy Symbol as your focus, and prepare spells from the Paladin list.","Weapon Mastery: Use the mastery property of two weapons you are proficient with.","Fighting Style: Choose a Fighting Style feat, such as Defense or Great Weapon Fighting.","Paladin's Smite: Divine Smite is always prepared and doesn't count against your prepared spells. Right after you hit with a melee weapon you can cast it (Bonus Action) for 2d8 radiant damage, +1d8 per spell slot level above 1st. You can also cast it once per long rest without a slot.","Channel Divinity: 2 uses (regain one on a short rest, all on a long rest). Divine Sense: for 10 minutes you know where celestials, fiends and undead within 60 ft are.","Extra Attack: Attack twice, instead of once, when you take the Attack action.","Faithful Steed: Find Steed is always prepared and you can cast it once per long rest without a slot."],
+Ranger:["Spellcasting: You cast spells with Wisdom, using a Druidic Focus, and prepare spells from the Ranger list.","Favored Enemy: Hunter's Mark is always prepared. You can cast it without a spell slot @F@ times per long rest.","Weapon Mastery: Use the mastery property of two weapons you are proficient with.","Deft Explorer: Gain Expertise in one skill you are proficient in and learn two languages.","Fighting Style: Choose a Fighting Style feat, such as Archery or Two-Weapon Fighting.","Extra Attack: Attack twice, instead of once, when you take the Attack action."],
+Sorcerer:["Spellcasting: You cast spells with Charisma, using an Arcane Focus, and prepare spells from the Sorcerer list.","Innate Sorcery: Bonus Action, 2 uses per long rest. For 1 minute your Sorcerer spell save DC is 1 higher and you have Advantage on Sorcerer spell attack rolls.","Font of Magic: You have Sorcery Points equal to your Sorcerer level (regained on a long rest) and can convert spell slots into points and back.","Metamagic: Learn 2 Metamagic options (such as Quickened Spell, Twinned Spell or Subtle Spell) and spend Sorcery Points to modify spells as you cast them.","Sorcerous Restoration: When you finish a short rest, regain expended Sorcery Points up to half your Sorcerer level (once per long rest)."]};
+const SF={"Archfey Patron":["Steps of the Fey: Cast Misty Step for free (CHA mod times per long rest); on use, Refreshing Step (temp HP) or Taunting Step (Disadvantage on their next save)."],"Celestial Patron":["Healing Light: A pool of d6s (1 + level) to heal creatures within 60 ft as a Bonus Action. Also gain Light and Sacred Flame cantrips."],"Fiend Patron":["Dark One's Blessing: When you reduce an enemy to 0 HP, gain temporary HP equal to your CHA modifier + Warlock level."],"Great Old One Patron":["Psychic Spells: Your damaging spells can deal Psychic damage. Awakened Mind lets you speak telepathically within 30 ft."],"Arcane Trickster":["Spellcasting: You know Mage Hand plus two other Wizard cantrips, and prepare three level 1 Wizard spells, cast with Intelligence.","Mage Hand Legerdemain: You can cast Mage Hand as a Bonus Action and make the hand Invisible. You control it as a Bonus Action, and can make Sleight of Hand checks through it (for example, picking a lock with your Thieves' Tools at range)."],"Assassin":["Assassinate: Advantage on initiative and on attacks against creatures that haven't acted; Sneak Attack on a surprised foe does extra damage."],"Soulknife":["Psionic Power: Psionic Energy dice. Psychic Blades (1d6 or 1d4 psychic, Finesse) and Psi-Bolstered Knack to help failed checks."],"Thief":["Fast Hands: Cunning Action can also use an object, Sleight of Hand or Thieves' Tools. Second-Story Work: climb speed, jump with DEX."],"College of Dance":["Dazzling Footwork: Unarmed damage d6, DEX for unarmed attacks, Agile Strikes and Bardic Inspiration to hit harder."],"College of Glamour":["Beguiling Magic: Always have Charm Person and Mantle of Inspiration (temp HP and movement for allies)."],"College of Lore":["Cutting Words: Reaction to spend Bardic Inspiration to subtract from an enemy's roll. Bonus Proficiencies: three extra skills."],"College of Valor":["Combat Inspiration: Allies can add Inspiration to damage or AC. Martial Training: medium armor, shields, martial weapons."],"Path of the Berserker":["Frenzy: Once per Rage, extra damage on the first hit each turn (d6s equal to your Rage Damage bonus)."],"Path of the Wild Heart":["Rage of the Wilds: Choose Bear (resist most damage), Eagle (Dash/Disengage) or Wolf (allies get Advantage) each Rage. Animal Speaker."],"Path of the World Tree":["Vitality of the Tree: Gain temp HP when raging; allies within range can be healed when you end a Rage."],"Path of the Zealot":["Divine Fury: Extra radiant or necrotic damage on your first hit each turn while raging. Warrior of the Gods: a pool of healing dice."],"Circle of the Land":["Circle of the Land Spells: Pick a land type for always-prepared spells. Land's Aid: heal or damage in an area."],"Circle of the Moon":["Circle Forms: Wild Shape CR up to level/3, better AC, temp HP, and Moonlight bonus action to heal. Circle of the Moon Spells."],"Circle of the Sea":["Wrath of the Sea: Surround yourself with a mist that can deal cold damage and push enemies. Always-prepared sea spells."],"Circle of the Stars":["Star Map and Starry Form: Bonus-action constellation (Archer, Chalice or Dragon) for ranged damage, healing or concentration help."],"Abjurer":["Abjuration Savant and Arcane Ward: A magical shield (HP = 2 x Wizard level + INT mod) that absorbs damage."],"Diviner":["Portent: After a long rest, roll two d20s and swap them in for any attack, save or check you see."],"Evoker":["Potent Cantrip: Cantrips that need a save still deal half damage on a save. Sculpt Spells: protect allies from your area spells."],"Illusionist":["Improved Illusions: Minor Illusion as a Bonus Action and a bigger range. Phantasmal Creatures: summon illusory beasts."],
+"Life Domain":["Disciple of Life: Healing spells you cast restore extra HP equal to 2 + the spell's level. Preserve Life (Channel Divinity): restore HP equal to 5 x your Cleric level, split among creatures within 30 ft. Domain spells like Bless and Cure Wounds are always prepared."],
+"Light Domain":["Radiance of the Dawn (Channel Divinity): Dispel magical darkness and deal 2d10 + your Cleric level radiant damage to nearby enemies (CON save for half). Warding Flare: Reaction to impose Disadvantage on an attack against you (WIS modifier uses per long rest). You also know the Light cantrip."],
+"Trickery Domain":["Blessing of the Trickster: Give a creature, or yourself, Advantage on Stealth checks for an hour. Invoke Duplicity (Channel Divinity): conjure an illusory double of yourself for a minute; you can cast spells through it and gain Advantage on attacks against creatures near it."],
+"War Domain":["War Priest: Bonus Action to make one weapon attack (WIS modifier times per long rest). Guided Strike (Channel Divinity): add +10 to an attack roll you just made."],
+"Battle Master":["Combat Superiority: You have four d8 Superiority Dice (regained on a short or long rest) and learn three maneuvers such as Trip Attack, Riposte or Precision Attack. Maneuver save DC = 8 + proficiency bonus + STR or DEX modifier. Student of War: proficiency with one artisan's tool and one extra Fighter skill."],
+"Champion":["Improved Critical: Your weapon attacks score a critical hit on a roll of 19 or 20. Remarkable Athlete: Advantage on Initiative rolls and Athletics checks, and extra movement after you score a critical hit."],
+"Eldritch Knight":["Spellcasting: You learn 2 cantrips and 3 level 1 spells from the Wizard list, cast with Intelligence. War Bond: Bond with up to two weapons; summon a bonded weapon to your hand as a Bonus Action."],
+"Psi Warrior":["Psionic Power: You have a pool of Psionic Energy dice (four d6s). Protective Field (Reaction): reduce damage to you or an ally. Psionic Strike: add force damage to a hit. Telekinetic Movement: move an object or willing creature."],
+"Warrior of Mercy":["Hand of Harm: Spend 1 Focus Point after an Unarmed Strike hits to add necrotic damage (Martial Arts die + WIS). Hand of Healing: Spend 1 Focus Point to heal a creature you touch (Martial Arts die + WIS). Implements of Mercy: proficiency in Insight and Medicine and the Herbalism Kit."],
+"Warrior of Shadow":["Shadow Arts: Spend Focus Points to cast Darkness, Darkvision, Pass Without Trace or Silence without components. You also know Minor Illusion and gain Darkvision 60 ft."],
+"Warrior of the Elements":["Elemental Attunement: Spend 1 Focus Point to attune for 10 minutes: your Unarmed Strikes can deal acid, cold, fire, lightning or thunder damage and gain 10 ft of reach. You also know the Elementalism cantrip."],
+"Warrior of the Open Hand":["Open Hand Technique: When you hit with a Flurry of Blows attack you can knock the target Prone (DEX save), push it 15 ft (STR save) or stop it taking Reactions until your next turn."],
+"Oath of Devotion":["Sacred Weapon (Channel Divinity): Bonus Action as part of the Attack action. For 10 minutes you add your CHA modifier (minimum +1) to attack rolls with one weapon, it can deal radiant damage instead of its normal type, and it sheds Bright Light 20 ft.","Oath of Devotion Spells: Protection from Evil and Good and Shield of Faith are always prepared (Aid and Zone of Truth at level 5). They don't count against your prepared spells."],
+"Oath of Glory":["Peerless Athlete (Channel Divinity): For 10 minutes you have Advantage on Athletics and Acrobatics checks and jump farther. Inspiring Smite (Channel Divinity): after a Divine Smite, share temporary HP among allies. Oath spells like Guiding Bolt and Heroism are always prepared."],
+"Oath of the Ancients":["Nature's Wrath (Channel Divinity): Spectral vines restrain a creature within 15 ft (STR or DEX save). Oath spells like Ensnaring Strike and Speak with Animals are always prepared."],
+"Oath of Vengeance":["Vow of Enmity (Channel Divinity): For 1 minute you have Advantage on attack rolls against one creature within 30 ft. Oath spells like Bane and Hunter's Mark are always prepared."],
+"Beast Master":["Primal Companion: Summon a Beast of the Land, Sea or Sky that fights beside you, acts on your Initiative and attacks when you command it with a Bonus Action. Its stats grow with your level."],
+"Fey Wanderer":["Dreadful Strikes: Once per turn, a weapon hit deals extra psychic damage (1d4). Otherworldly Glamour: Add your WIS modifier to CHA checks and gain a social skill proficiency. Fey Wanderer spells are always prepared."],
+"Gloom Stalker":["Dread Ambusher: Add your WIS modifier to Initiative; on your first turn in combat you move faster and your weapon hit deals extra damage. Umbral Sight: Darkvision 60 ft, and creatures that rely on Darkvision can't see you in darkness."],
+"Hunter":["Hunter's Lore: While Hunter's Mark is on a creature you know its immunities, resistances and vulnerabilities. Hunter's Prey: choose Colossus Slayer (extra 1d8 damage to wounded targets) or Horde Breaker (an extra attack on a nearby creature)."],
+"Aberrant Sorcery":["Telepathic Speech: Speak telepathically with a creature you can see. Psionic Spells: Arms of Hadar, Calm Emotions, Detect Thoughts, Dissonant Whispers and Mind Sliver are always prepared (Hunger of Hadar and Sending at level 5)."],
+"Clockwork Sorcery":["Restore Balance: Reaction to cancel Advantage or Disadvantage on a d20 roll within 60 ft (CHA modifier uses per long rest). Clockwork Spells: Aid, Alarm, Lesser Restoration and Protection from Evil and Good are always prepared (Dispel Magic and Protection from Energy at level 5)."],
+"Draconic Sorcery":["Draconic Resilience: Your HP maximum increases by 1 per Sorcerer level, and while you wear no armor your AC is 10 + DEX + CHA.","Draconic Spells: Alter Self, Chromatic Orb, Command and Dragon's Breath are always prepared (Fear and Fly join them at level 5). They don't count against your prepared spells."],
+"Wild Magic Sorcery":["Wild Magic Surge: Casting spells can trigger a random effect from the Wild Magic table. Tides of Chaos: gain Advantage on a d20 test, after which a surge becomes more likely."]};
+const GL={Warlock:[1,1,2],Rogue:[1,1,1,1,2,3,5,5],Bard:[1,1,2,2,5],Barbarian:[1,1,1,2,2,3,5,5],Druid:[1,1,1,2,2,5],Wizard:[1,1,1,2,5],Cleric:[1,1,2,5],Fighter:[1,1,1,2,2,5,5],Monk:[1,1,2,2,2,3,4,5,5],Paladin:[1,1,1,2,2,3,5,5],Ranger:[1,1,1,2,2,5],Sorcerer:[1,1,2,2,5]};
+// 2024 PHB weapon mastery properties
+const MD={Cleave:"When you hit a creature with a melee attack, you can make one more attack with this weapon against a second creature within 5 ft of the first and within your reach. On a hit it takes the weapon's damage dice only (no ability modifier unless it's negative). Once per turn.",
+Graze:"When your attack misses, the target still takes damage equal to the ability modifier you attacked with (@MOD@ @TYPE@ damage).",
+Nick:"When you make the extra attack from the Light property, you make it as part of the Attack action instead of using your Bonus Action. Once per turn. Useful when fighting with a light weapon in each hand.",
+Push:"When you hit, you can push the creature up to 10 ft straight away from you, if it's Large or smaller.",
+Sap:"When you hit, the creature has Disadvantage on its next attack roll before the start of your next turn.",
+Slow:"When you hit and deal damage, you can reduce the creature's Speed by 10 ft until the start of your next turn. Hitting it again doesn't slow it further.",
+Topple:"When you hit, you can force the creature to make a CON save (DC @DC@). On a failure it falls Prone, so melee attacks against it have Advantage.",
+Vex:"When you hit and deal damage, you have Advantage on your next attack roll against that creature before the end of your next turn."};
+const MHOW="Each weapon has one mastery property. You can only use a weapon's mastery if your class's Weapon Mastery feature lets you pick that kind of weapon and you're proficient with it. Masteries need no action and no roll: they happen automatically when the condition is met (you choose whether to use them). After each long rest you can swap one of your mastery weapons for another.";
+const wmCount=(cl,L)=>({Barbarian:L>=4?3:2,Fighter:L>=4?4:3,Paladin:2,Ranger:2,Rogue:2})[cl]||0;
+const fx=(f,s)=>{const L=s.L;if(f.startsWith("Weapon Mastery"))return "Weapon Mastery: Choose "+["","one","two","three","four"][wmCount(s.cl,L)]+" kinds of weapons you're proficient with. When you attack with one of them you can use its mastery property, a bonus effect such as knocking a foe Prone or slowing it down (see the Weapon Mastery cards). You can change one choice after each long rest.";if(f.startsWith("Sneak Attack"))return f.replace(/2d6/g,Math.ceil(L/2)+"d6");if(f.startsWith("Bardic Inspiration"))return L>=5?f.replace(/d6/g,"d8"):f;if(f.startsWith("Rage"))return f.replace("3 uses",(L<3?2:L<6?3:4)+" uses");if(f.startsWith("Wild Shape"))return L>=4?f.replace("CR 1/4","CR 1/2"):f;return f.replace("@N@",L<2?1:L<5?3:5).replace("@D@",L>=5?"d8":"d6").replace("@S@",L<4?2:3).replace("@F@",L<5?2:3)};
+const FT=s=>(CF[s.cl]||[]).filter((f,i)=>s.L>=GL[s.cl][i]).concat(s.L>=3?SF[s.sub]||[]:[]).map(f=>fx(f,s));
+const DSP={Aasimar:"Touched by celestial power: resist necrotic and radiant damage, heal with a touch, and shed light.",Dragonborn:"Draconic heritage: a breath weapon and damage resistance matching your dragon type.",Dwarf:"Tough, stout folk: strong darkvision, poison resistance, extra HP and a feel for stonework.",Elf:"Graceful and long-lived: darkvision, resistance to being charmed, and a lineage (Drow, High or Wood) that adds magic or speed.",Gnome:"Small, clever and magical: Advantage on INT, WIS and CHA saves, plus a Forest or Rock lineage.",Goliath:"Mountain-born giant-kin: powerful build, 35 ft speed and a boon from your giant ancestry.",Halfling:"Small, brave and lucky: reroll natural 1s and slip past larger creatures.",Human:"Versatile and adaptable: an extra skill, an extra Origin feat and Heroic Inspiration.",Orc:"Relentless warriors: darkvision, a burst of speed, and surviving a deadly blow once per rest.",Tiefling:"Touched by the lower planes: darkvision and innate magic from your fiendish legacy."};
+const DBG={Acolyte:"You served in a temple.",Artisan:"You made things for a living.",Charlatan:"You lived by deception and con games.",Criminal:"You lived outside the law.",Entertainer:"You performed for crowds.",Farmer:"You worked the land.",Guard:"You kept watch and kept the peace.",Guide:"You led travellers through the wilds.",Hermit:"You lived in seclusion.",Merchant:"You made your living in trade.",Noble:"You were raised in privilege.",Sage:"You devoted yourself to study.",Sailor:"You worked on ships.",Scribe:"You copied and kept records.",Soldier:"You trained and fought in an army.",Wayfarer:"You grew up on the road."};
+const DCL={Barbarian:"A fierce frontline fighter who rages for extra damage and toughness. Simple to play.",Bard:"A charismatic performer and spellcaster who inspires allies and is good at almost everything.",Cleric:"A divine spellcaster who heals, protects and fights with the power of a god.",Druid:"A nature spellcaster who can turn into animals.",Fighter:"A master of weapons and armor: reliable, sturdy and easy to learn.",Monk:"A fast martial artist who fights unarmed and spends focus points on special moves.",Paladin:"A holy knight who mixes heavy armor, healing touches and powerful smites.",Ranger:"A wilderness hunter with a bow or blades, tracking skills and light nature magic.",Rogue:"A sneaky expert who deals big damage with Sneak Attack and excels at skills.",Sorcerer:"An innate spellcaster with a pool of sorcery points to bend your spells.",Warlock:"A spellcaster who made a pact with a powerful patron: few slots that refresh on a short rest.",Wizard:"A studious spellcaster with the widest spell list, powered by a spellbook."};
+// starting kits: n, description, armor, shield, weapons, other gear
+const KIT={
+Barbarian:[{n:"PHB starting gear",d:"The Player's Handbook package: a greataxe, plus handaxes to throw.",ar:"None",sh:0,w:["Greataxe","Handaxe"],g:"Greataxe, 4 Handaxes, Explorer's Pack, 15 GP"},{n:"Sword & Shield (alternative)",d:"A shield for steadier defense and a versatile sword. Not the PHB package: in the 2024 rules you'd buy this with the starting-gold option instead, so check with your DM.",ar:"None",sh:1,w:["Longsword","Javelin"],g:"Longsword, Shield, 4 Javelins, Explorer's Pack",alt:1}],
+Bard:[{n:"PHB starting gear",d:"The Player's Handbook package: leather armor, two daggers and an instrument.",ar:"Leather",sh:0,w:["Dagger"],g:"Leather Armor, 2 Daggers, Musical Instrument (your choice), Entertainer's Pack, 19 GP"},{n:"Stage Archer (alternative)",d:"Better armor and a bow to stay at range. Not the PHB package: in the 2024 rules you'd buy this with the starting-gold option instead, so check with your DM.",ar:"Studded Leather",sh:0,w:["Shortbow","Dagger"],g:"Studded Leather Armor, Shortbow, 20 Arrows, Quiver, Dagger, Musical Instrument (your choice), Entertainer's Pack",alt:1}],
+Cleric:[{n:"PHB starting gear",d:"The Player's Handbook package: chain shirt, shield and mace.",ar:"Chain Shirt",sh:1,w:["Mace"],g:"Chain Shirt, Shield, Mace, Holy Symbol, Priest's Pack, 7 GP"},{n:"Frontline Cleric (alternative)",d:"Heavier armor and a crossbow for range. Not the PHB package: in the 2024 rules you'd buy this with the starting-gold option instead, so check with your DM.",ar:"Scale Mail",sh:1,w:["Mace","Light Crossbow"],g:"Scale Mail, Shield, Mace, Light Crossbow, 20 Bolts, Holy Symbol, Priest's Pack",alt:1}],
+Druid:[{n:"PHB starting gear",d:"The Player's Handbook package: leather armor, shield, sickle and a quarterstaff that doubles as your druidic focus.",ar:"Leather",sh:1,w:["Sickle","Quarterstaff"],g:"Leather Armor, Shield, Sickle, Druidic Focus (Quarterstaff), Explorer's Pack, Herbalism Kit, 9 GP"},{n:"Staff & Sling (alternative)",d:"No shield, so you can use a two-handed staff with spells like Shillelagh. Not the PHB package: in the 2024 rules you'd buy this with the starting-gold option instead, so check with your DM.",ar:"Leather",sh:0,w:["Quarterstaff","Sling"],g:"Leather Armor, Quarterstaff, Sling, 20 Sling Bullets, Druidic Focus (sprig of mistletoe), Explorer's Pack, Herbalism Kit",alt:1}],
+Fighter:[{n:"PHB gear A: heavy weapons",d:"Player's Handbook option A: chain mail, a greatsword, a flail and javelins.",ar:"Chain Mail",sh:0,w:["Greatsword","Flail","Javelin"],g:"Chain Mail, Greatsword, Flail, 8 Javelins, Dungeoneer's Pack, 4 GP"},{n:"PHB gear B: archer",d:"Player's Handbook option B: studded leather, a longbow and two light blades.",ar:"Studded Leather",sh:0,w:["Longbow","Scimitar","Shortsword"],g:"Studded Leather Armor, Scimitar, Shortsword, Longbow, 20 Arrows, Quiver, Dungeoneer's Pack, 11 GP"},{n:"Shield Tank (alternative)",d:"Heavy armor, shield and longsword: very hard to hurt. Not the PHB package: in the 2024 rules you'd buy this with the starting-gold option instead, so check with your DM.",ar:"Chain Mail",sh:1,w:["Longsword","Javelin"],g:"Chain Mail, Shield, Longsword, 4 Javelins, Dungeoneer's Pack",alt:1}],
+Monk:[{n:"PHB starting gear",d:"The Player's Handbook package: a spear and five daggers; your fists do the rest.",ar:"None",sh:0,w:["Spear","Dagger"],g:"Spear, 5 Daggers, Artisan's Tools or Musical Instrument (your tool choice), Explorer's Pack, 11 GP"},{n:"Shortsword & Darts (alternative)",d:"A light blade for melee and darts to throw. Not the PHB package: in the 2024 rules you'd buy this with the starting-gold option instead, so check with your DM.",ar:"None",sh:0,w:["Shortsword","Dart"],g:"Shortsword, 10 Darts, Artisan's Tools or Musical Instrument (your tool choice), Explorer's Pack",alt:1}],
+Paladin:[{n:"PHB starting gear",d:"The Player's Handbook package: chain mail, shield, longsword and javelins.",ar:"Chain Mail",sh:1,w:["Longsword","Javelin"],g:"Chain Mail, Shield, Longsword, 6 Javelins, Holy Symbol, Priest's Pack, 9 GP"},{n:"Great Weapon (alternative)",d:"A two-handed greatsword for big damage; no shield. Not the PHB package: in the 2024 rules you'd buy this with the starting-gold option instead, so check with your DM.",ar:"Chain Mail",sh:0,w:["Greatsword","Javelin"],g:"Chain Mail, Greatsword, 6 Javelins, Holy Symbol, Priest's Pack",alt:1}],
+Ranger:[{n:"PHB starting gear",d:"The Player's Handbook package: studded leather, a longbow and two light blades.",ar:"Studded Leather",sh:0,w:["Longbow","Scimitar","Shortsword"],g:"Studded Leather Armor, Scimitar, Shortsword, Longbow, 20 Arrows, Quiver, Druidic Focus (sprig of mistletoe), Explorer's Pack, 7 GP"}],
+Rogue:[{n:"PHB starting gear",d:"The Player's Handbook package: finesse blades for Sneak Attack up close, and a shortbow for range.",ar:"Leather",sh:0,w:["Shortsword","Dagger","Shortbow"],g:"Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves' Tools, Burglar's Pack, 8 GP"}],
+Sorcerer:[{n:"PHB starting gear",d:"The Player's Handbook package: no armor, a spear and daggers for emergencies.",ar:"None",sh:0,w:["Spear","Dagger"],g:"Spear, 2 Daggers, Arcane Focus (crystal), Dungeoneer's Pack, 28 GP"},{n:"Crossbow Caster (alternative)",d:"Stay back and shoot a light crossbow. Not the PHB package: in the 2024 rules you'd buy this with the starting-gold option instead, so check with your DM.",ar:"None",sh:0,w:["Light Crossbow","Dagger"],g:"Light Crossbow, 20 Bolts, Dagger, Arcane Focus (crystal), Dungeoneer's Pack",alt:1}],
+Warlock:[{n:"PHB starting gear",d:"The Player's Handbook package: leather armor, a sickle and two daggers.",ar:"Leather",sh:0,w:["Sickle","Dagger"],g:"Leather Armor, Sickle, 2 Daggers, Arcane Focus (orb), Book (occult lore), Scholar's Pack, 15 GP"},{n:"Crossbow Warlock (alternative)",d:"Pair Eldritch Blast with a light crossbow. Not the PHB package: in the 2024 rules you'd buy this with the starting-gold option instead, so check with your DM.",ar:"Leather",sh:0,w:["Light Crossbow","Dagger"],g:"Leather Armor, Light Crossbow, 20 Bolts, Dagger, Arcane Focus (orb), Book (occult lore), Scholar's Pack",alt:1}],
+Wizard:[{n:"PHB starting gear",d:"The Player's Handbook package: no armor, two daggers, and a quarterstaff that doubles as your focus.",ar:"None",sh:0,w:["Quarterstaff","Dagger"],g:"2 Daggers, Arcane Focus (Quarterstaff), Robe, Spellbook, Scholar's Pack, 5 GP"},{n:"Crossbow Mage (alternative)",d:"A light crossbow for ranged backup. Not the PHB package: in the 2024 rules you'd buy this with the starting-gold option instead, so check with your DM.",ar:"None",sh:0,w:["Light Crossbow","Dagger"],g:"Light Crossbow, 20 Bolts, 2 Daggers, Arcane Focus (crystal), Robe, Spellbook, Scholar's Pack",alt:1}]};
+// background equipment (2024 PHB option A), tool proficiency and weapons that can be used to attack
+const BGEQ={Acolyte:"Calligrapher's Supplies, Book (prayers), Holy Symbol, Parchment (10 sheets), Robe, 8 GP",Artisan:"Artisan's Tools (your choice), 2 Pouches, Traveler's Clothes, 32 GP",Charlatan:"Forgery Kit, Costume, Fine Clothes, 15 GP",Criminal:"2 Daggers, Thieves' Tools, Crowbar, 2 Pouches, Traveler's Clothes, 16 GP",Entertainer:"Musical Instrument (your choice), 2 Costumes, Mirror, Perfume, Traveler's Clothes, 11 GP",Farmer:"Sickle, Carpenter's Tools, Healer's Kit, Iron Pot, Shovel, Traveler's Clothes, 30 GP",Guard:"Spear, Light Crossbow, 20 Bolts, Gaming Set (your choice), Hooded Lantern, Manacles, Quiver, Traveler's Clothes, 12 GP",Guide:"Shortbow, 20 Arrows, Cartographer's Tools, Bedroll, Quiver, Tent, Traveler's Clothes, 3 GP",Hermit:"Quarterstaff, Herbalism Kit, Bedroll, Book (philosophy), Lamp, Oil (3 flasks), Traveler's Clothes, 16 GP",Merchant:"Navigator's Tools, 2 Pouches, Traveler's Clothes, 22 GP",Noble:"Gaming Set (your choice), Fine Clothes, Perfume, 29 GP",Sage:"Quarterstaff, Calligrapher's Supplies, Book (history), Parchment (8 sheets), Robe, 8 GP",Sailor:"Dagger, Navigator's Tools, Rope, Traveler's Clothes, 20 GP",Scribe:"Calligrapher's Supplies, Fine Clothes, Lamp, Oil (3 flasks), Parchment (12 sheets), 23 GP",Soldier:"Spear, Shortbow, 20 Arrows, Gaming Set (your choice), Healer's Kit, Quiver, Traveler's Clothes, 14 GP",Wayfarer:"2 Daggers, Thieves' Tools, Gaming Set (your choice), Bedroll, 2 Pouches, Traveler's Clothes, 16 GP"};
+const BGT={Acolyte:"Calligrapher's Supplies",Artisan:"One type of Artisan's Tools",Charlatan:"Forgery Kit",Criminal:"Thieves' Tools",Entertainer:"One musical instrument",Farmer:"Carpenter's Tools",Guard:"One type of Gaming Set",Guide:"Cartographer's Tools",Hermit:"Herbalism Kit",Merchant:"Navigator's Tools",Noble:"One type of Gaming Set",Sage:"Calligrapher's Supplies",Sailor:"Navigator's Tools",Scribe:"Calligrapher's Supplies",Soldier:"One type of Gaming Set",Wayfarer:"Thieves' Tools"};
+const BGW={Criminal:["Dagger"],Farmer:["Sickle"],Guard:["Spear","Light Crossbow"],Guide:["Shortbow"],Hermit:["Quarterstaff"],Sage:["Quarterstaff"],Sailor:["Dagger"],Soldier:["Spear","Shortbow"],Wayfarer:["Dagger"]};
+// class training: armor | weapons | tools
+const PROF={Barbarian:["Light and medium armor, shields","Simple and martial weapons",""],Bard:["Light armor","Simple weapons","Three musical instruments of your choice"],Cleric:["Light and medium armor, shields","Simple weapons",""],Druid:["Light armor, shields","Simple weapons","Herbalism Kit"],Fighter:["All armor, shields","Simple and martial weapons",""],Monk:["None","Simple weapons, and martial weapons with the Light property","One Artisan's Tools or musical instrument"],Paladin:["All armor, shields","Simple and martial weapons",""],Ranger:["Light and medium armor, shields","Simple and martial weapons",""],Rogue:["Light armor","Simple weapons, and martial weapons with the Finesse or Light property","Thieves' Tools"],Sorcerer:["None","Simple weapons",""],Warlock:["Light armor","Simple weapons",""],Wizard:["None","Simple weapons",""]};
+const curKit=()=>{const ks=KIT[$("cl").value];return ks[$("kit").selectedIndex]||ks[0]};
+const splitG=x=>String(x||"").split(/,\s*(?![^(]*\))/).map(q=>q.trim()).filter(Boolean);
+function gearInfo(){const k=curKit(),a=splitG(k.g),b=splitG(BGEQ[$("bg").value]),gp=x=>x.reduce((n,q)=>{const m=q.match(/^(\d+) GP$/);return n+(m?+m[1]:0)},0),ng=x=>x.filter(q=>!/^\d+ GP$/.test(q));return{kit:ng(a),bg:ng(b),gp:gp(a)+gp(b),alt:!!k.alt}}
+const atkW=()=>[...new Set(curKit().w.concat(BGW[$("bg").value]||[]))];
+function profLines(){const cl=$("cl").value,p=PROF[cl].slice();
+ if(cl=="Cleric"&&cv("order")=="Protector"){p[0]="All armor, shields";p[1]="Simple and martial weapons"}
+ if(cl=="Druid"&&cv("primal")=="Warden"){p[0]="Light and medium armor, shields";p[1]="Simple and martial weapons"}
+ if(cl=="Bard"&&+$("lv").value>=3&&$("sub").value=="College of Valor"){p[0]="Light and medium armor, shields";p[1]="Simple and martial weapons"}
+ const tools=[...new Set([p[2],BGT[$("bg").value]].filter(Boolean))],fixed=["Common"].concat(cl=="Rogue"?["Thieves' Cant"]:[],cl=="Druid"?["Druidic"]:[]),ch=cv("lang");
+ return[["Armor",p[0]],["Weapons",p[1]],["Tools",tools.join(", ")||"None"],["Languages",fixed.concat(ch?[...ch]:[]).join(", ")]]}
+function applyKit(){delete CH.wm;const ks=KIT[$("cl").value],x=ks[$("kit").selectedIndex]||ks[0];$("ar").value=x.ar;$("sh").value=x.sh?"Shield (+2 AC)":"No shield";["w1","w2","w3"].forEach((i,j)=>$(i).value=x.w[j]||"\u2014 none \u2014");
+$("kd").textContent=x.d+" Contains: "+[x.ar!="None"?x.ar+" armor":"",x.sh?"shield":""].concat(x.w).filter(Boolean).join(", ")+"; "+x.g+"."}
+function kitOpts(){opt($("kit"),KIT[$("cl").value].map(x=>x.n));applyKit()}
+// armor: name|type (L/M/H, - none)|base AC|stealth disadvantage|STR needed
+const ARM=`None|-|10|0|0
+Padded|L|11|1|0
+Leather|L|11|0|0
+Studded Leather|L|12|0|0
+Hide|M|12|0|0
+Chain Shirt|M|13|0|0
+Scale Mail|M|14|1|0
+Breastplate|M|14|0|0
+Half Plate|M|15|1|0
+Ring Mail|H|14|1|0
+Chain Mail|H|16|1|13
+Splint|H|17|1|15
+Plate|H|18|1|15`.split("\n").map(l=>{const[n,t,b,d,r]=l.split("|");return{n,t,b:+b,d:+d,r:+r}});
+// weapon: name|damage|type|S simple/M martial|N melee STR, F finesse, R ranged|properties;mastery
+const WPN=`Club|1d4|B|S|N|Light;Slow
+Dagger|1d4|P|S|F|Finesse, Light, Thrown;Nick
+Greatclub|1d8|B|S|N|Two-Handed;Push
+Handaxe|1d6|S|S|N|Light, Thrown;Vex
+Javelin|1d6|P|S|N|Thrown;Slow
+Light Hammer|1d4|B|S|N|Light, Thrown;Nick
+Mace|1d6|B|S|N|;Sap
+Quarterstaff|1d6|B|S|N|Versatile (1d8);Topple
+Sickle|1d4|S|S|N|Light;Nick
+Spear|1d6|P|S|N|Thrown, Versatile (1d8);Sap
+Dart|1d4|P|S|F|Finesse, Thrown;Vex
+Light Crossbow|1d8|P|S|R|Ammunition, Loading, Two-Handed;Slow
+Shortbow|1d6|P|S|R|Ammunition, Two-Handed;Vex
+Sling|1d4|B|S|R|Ammunition;Slow
+Battleaxe|1d8|S|M|N|Versatile (1d10);Topple
+Flail|1d8|B|M|N|;Sap
+Glaive|1d10|S|M|N|Heavy, Reach, Two-Handed;Graze
+Greataxe|1d12|S|M|N|Heavy, Two-Handed;Cleave
+Greatsword|2d6|S|M|N|Heavy, Two-Handed;Graze
+Halberd|1d10|S|M|N|Heavy, Reach, Two-Handed;Cleave
+Longsword|1d8|S|M|N|Versatile (1d10);Sap
+Maul|2d6|B|M|N|Heavy, Two-Handed;Topple
+Morningstar|1d8|P|M|N|;Sap
+Rapier|1d8|P|M|F|Finesse;Vex
+Scimitar|1d6|S|M|F|Finesse, Light;Nick
+Shortsword|1d6|P|M|F|Finesse, Light;Vex
+Trident|1d8|P|M|N|Thrown, Versatile (1d10);Topple
+War Pick|1d8|P|M|N|Versatile (1d10);Sap
+Warhammer|1d8|B|M|N|Versatile (1d10);Push
+Whip|1d4|S|M|F|Finesse, Reach;Slow
+Hand Crossbow|1d6|P|M|R|Ammunition, Light, Loading;Vex
+Heavy Crossbow|1d10|P|M|R|Ammunition, Heavy, Loading, Two-Handed;Push
+Longbow|1d8|P|M|R|Ammunition, Heavy, Two-Handed;Slow`.split("\n").map(l=>{const[n,d,t,c,k,p]=l.split("|");return{n,d,t,c,k,p}});
+const PA={Barbarian:"LMS",Bard:"L",Cleric:"LMS",Druid:"LS",Fighter:"LMHS",Monk:"",Paladin:"LMHS",Ranger:"LMS",Rogue:"L",Sorcerer:"",Warlock:"L",Wizard:""};
+const WM={Barbarian:1,Fighter:1,Paladin:1,Ranger:1,Rogue:1},WP=["Barbarian","Fighter","Paladin","Ranger"];
+const wprof=(cl,x)=>x.c=="S"||WP.includes(cl)||(cl=="Cleric"&&cv("order")=="Protector")||(cl=="Druid"&&cv("primal")=="Warden")||(cl=="Rogue"&&/Finesse|Light/.test(x.p))||(cl=="Monk"&&/Light/.test(x.p));
+const GR=(m,pb,cl,f,L)=>{const a=ARM.find(x=>x.n==$("ar").value),sh=$("sh").value[0]=="S",w=[],pa=(PA[cl]||"")+(cl=="Cleric"&&cv("order")=="Protector"?"H":"")+(cl=="Druid"&&cv("primal")=="Warden"?"M":"");
+let ac=a.t=="-"?10+m[1]+(cl=="Barbarian"?m[2]:0)+(cl=="Monk"&&!sh?m[4]:0)+(cl=="Sorcerer"&&L>=3&&$("sub").value=="Draconic Sorcery"?m[5]:0):a.b+(a.t=="L"?m[1]:a.t=="M"?Math.min(m[1],2):0);ac+=sh?2:0;if(cv("style")=="Defense"&&a.t!="-")ac+=1;let dspd=0;
+if(a.t!="-"&&!pa.includes(a.t))w.push("Not proficient with "+a.n+" armor: Disadvantage on STR/DEX rolls and you can't cast spells.");
+if(sh&&!pa.includes("S"))w.push("Not proficient with shields: same penalties as armor.");
+if(a.d)w.push(a.n+" armor: Disadvantage on Stealth checks.");
+if(a.r&&f[0]<a.r){w.push(a.n+" armor needs STR "+a.r+": speed -10 ft.");dspd-=10}
+if(cl=="Barbarian"&&L>=5&&a.t!="H")dspd+=10;if(cl=="Monk"&&L>=2&&a.t=="-"&&!sh)dspd+=10;
+const T={B:"bludgeoning",P:"piercing",S:"slashing"};
+const atk=atkW().map(n=>WPN.find(x=>x.n==n)).filter(Boolean).map(x=>{const[pr,ms]=x.p.split(";"),p=wprof(cl,x),mo=x.k=="R"?m[1]:x.k=="F"?Math.max(m[0],m[1]):m[0],sty=cv("style"),ab=sty=="Archery"&&x.k=="R"?2:0,db=sty=="Dueling"&&x.k!="R"&&!/Two-Handed/.test(pr)?2:0,mg=WM[cl]&&ms&&(!cv("wm")||cv("wm").has(x.n));
+return `${x.n}: ${sg(mo+(p?pb:0)+ab)} to hit, ${x.d}${(mo+db)?sg(mo+db):""} ${T[x.t]} (${pr||"no properties"}${mg?"; Mastery: "+ms:""})${p?"":" [not proficient: no proficiency bonus]"}`});
+const ebl=cl=="Warlock"&&pick.has("Eldritch Blast")?[`Eldritch Blast (cantrip): ${sg(m[5]+pb)} to hit, ${L>=5?"2 beams of ":""}1d10${cv("inv")&&cv("inv").has("Agonizing Blast")&&m[5]?sg(m[5]):""} force damage, 120 ft`]:[];const ua=cl=="Monk"?[`Unarmed Strike (Martial Arts): ${sg(Math.max(m[0],m[1])+pb)} to hit, ${L>=5?"1d8":"1d6"}${sg(Math.max(m[0],m[1]))} bludgeoning`]:[];return{ac,atk:ua.concat(ebl,atk),warn:w,shield:sh,dspd}};
+const CAST={Warlock:["CHA",2,4,"Wl","Pact Magic: 2 slots (2nd level), short rest"],Bard:["CHA",2,6,"Bd","Slots: 4x 1st, 2x 2nd"],Druid:["WIS",2,6,"Dr","Slots: 4x 1st, 2x 2nd"],Wizard:["INT",3,6,"Wz","Slots: 4x 1st, 2x 2nd"],Rogue:["INT",3,3,"Wz","Slots: 2x 1st"]};
+const SPELLS=`Acid Splash|0|SoWz|Burst of acid in a 5-ft-radius sphere within 60 ft: 1d6 acid damage, DEX save.
+Chill Touch|0|SoWlWz|Melee spell attack (touch), 1d10 necrotic damage; the target can't regain HP until the end of your next turn.
+Dancing Lights|0|BdSoWz|Create up to four torch-sized lights you can move.
+Druidcraft|0|Dr|Tiny nature effects: predict weather, bloom a flower, make a sound.
+Eldritch Blast|0|Wl|Ranged spell attack, 1d10 force damage, 120 ft. Warlock staple.
+Fire Bolt|0|SoWz|Ranged spell attack, 1d10 fire damage, 120 ft.
+Guidance|0|ClDr|Touch: add 1d4 to one ability check within a minute.
+Light|0|BdClSoWz|An object sheds bright light for an hour.
+Mage Hand|0|BdSoWlWz|A spectral hand moves objects up to 10 lb at 30 ft.
+Mending|0|BdClDrSoWz|Repair a single break or tear in an object you touch.
+Message|0|BdSoWz|Whisper to someone within 120 ft and they can whisper back.
+Minor Illusion|0|BdSoWlWz|Create a sound or small image; others can see through it with Investigation.
+Poison Spray|0|DrSoWlWz|Ranged spell attack, 1d12 poison damage, 30 ft.
+Prestidigitation|0|BdSoWlWz|Small harmless magic tricks: clean, flavour, spark, tiny illusions.
+Produce Flame|0|Dr|Hold a flame for light, or throw it for 1d8 fire damage.
+Ray of Frost|0|SoWz|Ranged spell attack, 1d8 cold damage and -10 ft speed.
+Resistance|0|ClDr|Touch: add 1d4 to one saving throw within a minute.
+Sacred Flame|0|Cl|Radiant flame: 1d8 radiant damage, DEX save, ignores cover.
+Shillelagh|0|Dr|Your club or staff uses WIS and deals d8 damage.
+Shocking Grasp|0|SoWz|Melee spell attack, 1d8 lightning damage; the target can't make Opportunity Attacks until the start of its next turn.
+Sorcerous Burst|0|So|Ranged attack: 1d8 damage of a type you choose; max rolls can explode for more.
+Spare the Dying|0|Cl|Touch: stabilise a creature at 0 HP.
+Thaumaturgy|0|Cl|Minor wonders: booming voice, flickering flames, tremors, odd sounds.
+Thorn Whip|0|Dr|Melee spell attack, 1d6 piercing and pull the target 10 ft.
+Starry Wisp|0|BdDr|Ranged spell attack, 1d8 radiant damage; the target can't benefit from being Invisible until your next turn.
+Toll the Dead|0|ClWlWz|A doleful toll: 1d8 necrotic damage (1d12 if the target is hurt), WIS save.
+Vicious Mockery|0|Bd|1d6 psychic and Disadvantage on the target's next attack.
+Mind Sliver|0|SoWlWz|1d6 psychic damage (INT save) and the target subtracts 1d4 from its next saving throw.
+Word of Radiance|0|Cl|Burst of radiant light: enemies within 5 ft take 1d6 radiant damage, CON save.
+Alarm|1|RgWz|Ritual: set a mental alarm on an area for 8 hours.
+Animal Friendship|1|BdDrRg|Charm a beast with a WIS save for 24 hours.
+Arms of Hadar|1|Wl|Dark tendrils around you: 2d6 necrotic damage (STR save for half); failures can't take Reactions.
+Armor of Agathys|1|Wl|Temp HP; attackers who hit you in melee take cold damage.
+Bane|1|BdCl|Up to three creatures subtract 1d4 from attacks and saves (CHA save).
+Bless|1|ClPa|Up to three creatures add 1d4 to attack rolls and saving throws.
+Burning Hands|1|SoWz|15-ft cone, 3d6 fire damage (DEX save for half).
+Charm Person|1|BdDrSoWlWz|A Humanoid regards you as a friendly acquaintance for an hour.
+Chromatic Orb|1|SoWz|Ranged spell attack: 3d8 damage of a type you choose.
+Command|1|BdClPa|Give a one-word command; a creature obeys on a failed WIS save.
+Comprehend Languages|1|BdSoWlWz|Understand any spoken or written language for an hour.
+Cure Wounds|1|BdClDrPaRg|Touch: heal 2d8 + mod.
+Detect Evil and Good|1|ClPa|Sense aberrations, celestials, fiends and undead within 30 ft.
+Detect Magic|1|BdClDrPaRgSoWz|Sense magic within 30 ft for up to 10 minutes.
+Disguise Self|1|BdSoWz|Change your appearance for an hour.
+Dissonant Whispers|1|Bd|3d6 psychic damage (WIS save); on a failure the target must use its Reaction to move away from you.
+Divine Favor|1|Pa|Bonus Action: for 1 minute your weapon attacks deal an extra 1d4 radiant damage.
+Divine Smite|1|Pa|Bonus Action right after you hit with a melee weapon or Unarmed Strike: +2d8 radiant damage (+1d8 against Fiends and Undead, +1d8 per slot level above 1st).
+Ensnaring Strike|1|Rg|Your next weapon hit entangles the target in thorny vines.
+Entangle|1|Dr|Plants restrain creatures in a 20-ft square.
+Expeditious Retreat|1|SoWlWz|Bonus Action Dash now and on later turns.
+Faerie Fire|1|BdDr|Creatures in a cube glow and can be hit with Advantage.
+False Life|1|SoWz|Gain 2d4 + 4 temporary hit points.
+Feather Fall|1|BdSoWz|Reaction: up to five falling creatures take no fall damage.
+Find Familiar|1|Wz|Summon a spirit animal helper (ritual).
+Fog Cloud|1|DrRgSoWz|A sphere of fog blocks sight.
+Goodberry|1|DrRg|Create 10 berries that each heal 1 HP.
+Guiding Bolt|1|Cl|Ranged spell attack: 4d6 radiant damage; the next attack on the target has Advantage.
+Hail of Thorns|1|Rg|Your next ranged hit bursts into thorns: 1d10 piercing in 5 ft (DEX save).
+Healing Word|1|BdClDr|Bonus Action: heal a creature 60 ft away for 2d4 + mod.
+Hellish Rebuke|1|Wl|Reaction: attacker takes 2d10 fire damage.
+Heroism|1|BdPa|Touch: immune to Frightened and gain temporary HP each turn.
+Hex|1|Wl|Bonus Action curse: +1d6 necrotic per hit, Disadvantage on a chosen ability check.
+Hunter's Mark|1|Rg|Bonus Action mark: +1d6 damage on your hits against the target and you track it easily.
+Inflict Wounds|1|Cl|Melee spell attack: 2d10 necrotic damage.
+Longstrider|1|BdDrRgWz|Touch: +10 ft speed for an hour.
+Mage Armor|1|SoWz|AC becomes 13 + DEX for 8 hours if you wear no armor.
+Magic Missile|1|SoWz|Three darts that always hit for 1d4+1 force each.
+Protection from Evil and Good|1|ClPaWlWz|Shield a creature from aberrations, celestials, elementals, fey, fiends and undead.
+Ray of Sickness|1|SoWz|Ranged spell attack: 2d8 poison damage, may poison.
+Sanctuary|1|Cl|Bonus Action ward: attackers must pass a WIS save to target the creature.
+Searing Smite|1|Pa|Your next weapon hit deals +1d6 fire damage and may ignite the target.
+Shield|1|SoWz|Reaction: +5 AC until your next turn and block Magic Missile.
+Shield of Faith|1|ClPa|+2 AC to a creature for 10 minutes (Concentration).
+Sleep|1|BdSoWz|5-ft-radius sphere within 60 ft: creatures make a WIS save or are Incapacitated, then fall Unconscious if they fail again (Concentration).
+Speak with Animals|1|BdDrRg|Talk to beasts for 10 minutes.
+Tasha's Hideous Laughter|1|BdWz|Target falls prone and can't act while it laughs.
+Thunderous Smite|1|Pa|Your next weapon hit deals +2d6 thunder damage and may push or knock prone.
+Thunderwave|1|BdDrSoWz|2d8 thunder damage and push enemies away in a 15-ft cube.
+Witch Bolt|1|SoWlWz|Ranged spell attack: 1d12 lightning; you can keep dealing damage each turn.
+Wrathful Smite|1|Pa|Your next weapon hit deals +1d6 psychic damage and may frighten.
+Compelled Duel|1|Pa|Force a creature to fight you; it has Disadvantage attacking others.
+Aid|2|ClPaRg|Up to three creatures gain +5 max and current HP for 8 hours.
+Alter Self|2|SoWz|Change your body: aquatic form, natural weapons or a new appearance.
+Barkskin|2|DrRg|Touch: the target's AC can't be lower than 17.
+Blur|2|BdSoWz|Attackers have Disadvantage against you.
+Branding Smite|2|Pa|Your next weapon hit deals +2d6 radiant damage and reveals an invisible target.
+Calm Emotions|2|BdCl|Suppress charm or fear, or make creatures indifferent.
+Cordon of Arrows|2|Rg|Arrows guard an area and shoot intruders.
+Darkness|2|SoWlWz|A 15-ft sphere of magical darkness.
+Detect Thoughts|2|BdSoWz|Read the surface thoughts of creatures near you (WIS save to probe deeper).
+Dragon's Breath|2|SoWz|Touch: a creature can exhale a 15-ft cone of acid, cold, fire, lightning or poison as a Magic action, 3d6 damage (DEX save for half).
+Darkvision|2|DrRgSoWz|Touch: a creature gains Darkvision 150 ft for 8 hours.
+Enhance Ability|2|BdClDrSo|Advantage on checks for one ability for an hour.
+Enlarge/Reduce|2|SoWz|Make a creature or object larger or smaller.
+Find Steed|2|Pa|Summon a loyal spectral steed.
+Gust of Wind|2|DrRgSoWz|A 60-ft line of strong wind pushes creatures 15 ft away (STR save) and disperses gas.
+Heat Metal|2|BdDr|Make a metal object burn creatures touching it.
+Hold Person|2|BdClDrSoWlWz|Humanoid is paralyzed on a failed WIS save.
+Invisibility|2|BdSoWlWz|Target is invisible until it attacks or casts a spell.
+Lesser Restoration|2|BdClDrPaRg|End blinded, deafened, paralyzed or poisoned on a creature.
+Levitate|2|SoWz|Float a creature or object 20 ft off the ground.
+Magic Weapon|2|PaWz|Touch: a weapon becomes +1 for an hour.
+Mind Spike|2|SoWlWz|3d8 psychic damage (WIS save) and you always know where the target is.
+Mirror Image|2|SoWlWz|Three illusory duplicates make you hard to hit.
+Misty Step|2|SoWlWz|Bonus Action: teleport up to 30 ft.
+Moonbeam|2|Dr|A beam of radiant light, 2d10 damage each turn.
+Phantasmal Force|2|BdSoWlWz|An illusion only one creature can see (INT save); it takes 2d8 psychic damage each turn it's in the illusion's area.
+Pass Without Trace|2|DrRg|+10 to Stealth for you and nearby allies.
+Prayer of Healing|2|Cl|Heal up to six creatures after a 10-minute casting.
+Ray of Enfeeblement|2|WlWz|A creature makes a CON save or deals 1d8 less damage with STR-based attacks and has Disadvantage on STR saves.
+Rope Trick|2|Wz|Touch a rope: it rises to an invisible pocket space where up to eight creatures can hide for an hour.
+Scorching Ray|2|SoWz|Three ranged spell attacks, 2d6 fire damage each.
+See Invisibility|2|BdSoWz|For an hour you see Invisible creatures and objects, and into the Ethereal Plane.
+Shatter|2|BdSoWz|3d8 thunder damage in a 10-ft sphere.
+Silence|2|BdClRg|A 20-ft sphere of silence blocks sound and verbal spells.
+Spike Growth|2|DrRg|Hazardous terrain damages creatures who move through it.
+Spiritual Weapon|2|Cl|Bonus Action: a floating spectral weapon attacks (1d8 + WIS force).
+Suggestion|2|BdSoWz|Plant a reasonable-sounding command in a creature's mind.
+Web|2|SoWz|Sticky webbing restrains creatures in a 20-ft cube.
+Zone of Truth|2|BdClPa|Creatures in a 15-ft sphere can't lie while inside it.
+Blink|3|SoWz|For 1 minute, roll at the end of each of your turns: on 11+ you vanish to the Ethereal Plane until your next turn.
+Beacon of Hope|3|Cl|Allies gain Advantage on WIS and death saves and get maximum healing.
+Call Lightning|3|Dr|Storm cloud: call down bolts for 3d10 lightning damage (DEX save for half).
+Clairvoyance|3|BdClSoWz|Create an invisible sensor at a place you know within 1 mile and see or hear through it.
+Conjure Animals|3|DrRg|Summon spirits in beast form to fight beside you (Concentration).
+Counterspell|3|SoWlWz|Reaction: a creature casting a spell within 60 ft must pass a CON save or the spell fails.
+Crusader's Mantle|3|Pa|30-ft aura for 1 minute: you and your allies' weapon hits deal an extra 1d4 radiant damage.
+Daylight|3|ClDrPaRgSo|A 60-ft sphere of bright light for an hour; it dispels magical darkness of level 3 or lower.
+Dispel Magic|3|BdClDrPaSoWlWz|End a spell of level 3 or lower on a target; higher levels need an ability check.
+Fireball|3|SoWz|20-ft-radius explosion at 150 ft, 8d6 fire damage (DEX save for half).
+Fear|3|BdSoWlWz|Creatures in a 30-ft cone make a WIS save or drop what they hold and are Frightened.
+Fly|3|SoWlWz|Touch: a creature gains a 60 ft flying speed for 10 minutes (Concentration).
+Haste|3|SoWz|Doubled speed, +2 AC and an extra action for a minute; the target is drained afterward.
+Hunger of Hadar|3|Wl|A sphere of void: difficult terrain, blinds, and deals cold then acid damage.
+Hypnotic Pattern|3|BdSoWlWz|Creatures in a 30-ft cube that see it make a WIS save or are Charmed and Incapacitated.
+Lightning Bolt|3|SoWz|100-ft line, 8d6 lightning damage (DEX save for half).
+Mass Healing Word|3|Cl|Bonus Action: heal up to six creatures within 60 ft.
+Protection from Energy|3|ClDrRgSoWz|Touch: resistance to acid, cold, fire, lightning or thunder damage for an hour.
+Nondetection|3|BdRgWz|For 8 hours a creature or object can't be targeted by Divination magic or seen through scrying sensors.
+Plant Growth|3|BdDrRg|Overgrow an area into difficult terrain, or enrich a field of crops.
+Sending|3|BdClWz|Send a 25-word message to a creature you know, anywhere on your plane; it can reply.
+Revivify|3|ClPa|Touch: return a creature that died within the last minute to life with 1 HP (needs a 300 gp diamond).
+Sleet Storm|3|DrSoWz|A 40-ft cylinder of sleet: difficult terrain, heavily obscured, creatures may fall Prone and lose Concentration.
+Slow|3|SoWz|Up to six creatures are slowed (WIS save).
+Stinking Cloud|3|BdSoWz|A 20-ft sphere of nauseating gas: creatures inside make a CON save or lose their action as they retch.
+Spirit Guardians|3|Cl|Spectral guardians damage and slow enemies near you.
+Water Breathing|3|DrRgSoWz|Up to ten creatures can breathe underwater for 24 hours.
+Vampiric Touch|3|WlWz|Melee spell attack, 3d6 necrotic damage; you heal half of it (Concentration).`.trim().split("\n").map(l=>{const[n,v,c,d]=l.split("|");return{n,v:+v,c,d}});
+let pick=new Set;
+const getC=()=>{const k=$("cl").value,L=+$("lv").value,M=[1,1,2,2,3][L-1],pr=[4,5,6,7,9][L-1],fmt=a=>a.map((n,i)=>n+"x L"+(i+1)).join(", "),FULL=[[2],[3],[4,2],[4,3],[4,3,2]][L-1],HALF=[[2],[2],[3],[3],[4,2]][L-1],HM=[1,1,1,1,2][L-1];
+if(k=="Warlock")return["CHA",L<4?2:3,L+1,"Wl","Pact Magic slots: "+["1x L1","2x L1","2x L2","2x L2","2x L3"][L-1]+", regained on a short rest",M];
+if(k=="Rogue"||k=="Fighter"){const sc=k=="Rogue"?"Arcane Trickster":"Eldritch Knight";return L<3||$("sub").value!=sc?null:["INT",2,[3,4,4][L-3],"Wz","Slots: "+[2,3,3][L-3]+"x L1",1]}
+const F={Bard:["CHA","Bd",[2,2,2,3,3],pr],Druid:["WIS","Dr",[2,2,2,3,3],pr],Wizard:["INT","Wz",[3,3,3,4,4],pr],Cleric:["WIS","Cl",[3,3,3,4,4],pr],Sorcerer:["CHA","So",[4,4,4,5,5],[2,4,6,7,9][L-1]]}[k];
+if(F)return[F[0],F[2][L-1],F[3],F[1],"Slots: "+fmt(FULL),M];
+if(k=="Paladin"||k=="Ranger")return[k=="Paladin"?"CHA":"WIS",0,[2,3,4,5,6][L-1],k=="Paladin"?"Pa":"Rg","Slots: "+fmt(HALF),HM];
+return null};
+let SPF={q:"",t:"All"};
+const SPT=["All","★ Recommended","Damage","Healing","Control","Buff","Utility"];
+const spTag=x=>{const d=x.d.toLowerCase(),t=[];if(/damage/.test(d))t.push("Damage");if(/heal|regain|temporary hit|revivif|restor/.test(d))t.push("Healing");if(/restrain|charm|frighten|incapacit|paraly|stun|sleep|slow|prone|disadvantage|blind|difficult terrain|command|hold|fog|web|entangle|silence|hypnot|push|knock/.test(d))t.push("Control");if(/advantage|bonus to|\+\d|\bac\b|resistance|armor|\bfly\b|speed|haste|invisible|blur|ward|temporary|bless|aid/.test(d))t.push("Buff");if(!t.length)t.push("Utility");return t.slice(0,2)};
+const ordn=v=>["","1st","2nd","3rd","4th","5th"][v];
+const PREPN={Bard:"Bards can swap one spell each time they gain a level.",Sorcerer:"Sorcerers can swap one spell each time they gain a level.",Warlock:"Warlocks can swap one spell each time they gain a level.",Ranger:"Rangers can swap one spell each time they gain a level.",Cleric:"Clerics can change their whole list after each long rest.",Druid:"Druids can change their whole list after each long rest.",Paladin:"Paladins can change their list after each long rest.",Wizard:"Wizards keep extra spells in a spellbook (not tracked here) and prepare a smaller list after each long rest."};
+const spRec=()=>{const r=REC[document.getElementById("cl").value]||{};return new Set([].concat(r.c||[],r.l||[]))};
+function spRender(){const c=getC();pick.clear();SPF={q:"",t:"All"};const e=document.getElementById("spk"),h=document.getElementById("sph"),t=document.getElementById("spct");
+if(!c){h.textContent="Your class doesn't cast spells at this level (or with this subclass). Nothing to pick here.";e.innerHTML="";t.innerHTML="";return}
+const mx=c[5];h.innerHTML=`Pick ${c[1]?c[1]+" cantrips and ":""}${c[2]} spells up to level ${mx}. (${c[4]})<br><b>Prepared</b> spells are the ones you can cast right now. ${PREPN[document.getElementById("cl").value]||"Others are not on your list until you change it."} Cantrips are free and unlimited; leveled spells use a spell slot. ★ = beginner-friendly pick.`;
+t.innerHTML=`<div id="spn" class="spn"></div><p class="hint" id="spg"></p><div class="sf">${SPT.map((x,i)=>`<button type="button" data-f="${x}" class="${i?"":"on"}">${x}</button>`).join("")}</div><input id="spq" placeholder="Search spells...">`;
+spDraw()}
+function spDraw(){const c=getC(),e=document.getElementById("spk");if(!c)return;const mx=c[5],rec=spRec(),kn=knownExcept("pick");
+let list=SPELLS.filter(x=>x.c.includes(c[3])&&x.v<=mx);const q=SPF.q.trim().toLowerCase();
+if(q)list=list.filter(x=>x.n.toLowerCase().includes(q)||x.d.toLowerCase().includes(q));
+if(SPF.t=="★ Recommended")list=list.filter(x=>rec.has(x.n));else if(SPF.t!="All")list=list.filter(x=>spTag(x).includes(SPF.t));
+let out="";for(let v=0;v<=mx;v++){const g=list.filter(x=>x.v==v).sort((a,b)=>(rec.has(b.n)-rec.has(a.n))||a.n.localeCompare(b.n));if(!g.length)continue;
+out+=`<h3 class="sgh">${v?ordn(v)+"-level spells (use a slot)":"Cantrips (free, unlimited)"}</h3><div class="spg">`+g.map(x=>{const ko=kn.get(x.n),lk=ko&&!pick.has(x.n);return `<label class="spc${lk?" dis":""}" title="${x.d}"><input type=checkbox data-sp="${x.n}" data-v="${x.v?1:0}"${pick.has(x.n)?" checked":""}${lk?' data-g="1" disabled':""}><span><b>${x.n}</b>${rec.has(x.n)?" ★":""}${lk?`<span class="chip">already yours: ${ko}</span>`:spTag(x).map(t=>`<span class="chip">${t}</span>`).join("")}<small>${x.d}</small></span></label>`}).join("")+`</div>`}
+e.innerHTML=out||'<p class="hint">No spells match that filter.</p>';spCount()}
+function spCount(){const c=getC(),n=document.getElementById("spn");if(!c||!n)return;const cc=[...pick].filter(x=>!SPELLS.find(q=>q.n==x).v).length,lc=pick.size-cc;
+n.innerHTML=(c[1]?`<b>Cantrips ${cc}/${c[1]}</b> &middot; `:"")+`<b>Spells ${lc}/${c[2]}</b>`+((c[1]&&cc>=c[1])&&lc>=c[2]?" &mdash; all picked! Uncheck one to swap.":"");
+document.querySelectorAll("#spk input").forEach(b=>{const lv=b.dataset.v=="1",full=lv?lc>=c[2]:cc>=c[1];b.disabled=b.dataset.g?!b.checked:(!b.checked&&full);b.closest("label").classList.toggle("dis",b.disabled)});const gn=document.getElementById("spg"),gr=grants();if(gn)gn.textContent=gr.length?"Already yours, so they don't count toward these picks: "+gr.map(x=>x.n+" ("+x.src+")").join(", ")+".":""}
+const $=id=>document.getElementById(id),opt=(el,a)=>el.innerHTML=a.map(x=>`<option>${x}</option>`).join("");
+opt($("sp"),Object.keys(SP));opt($("bg"),Object.keys(BG));opt($("cl"),Object.keys(CL));
+opt($("al"),["Lawful Good","Neutral Good","Chaotic Good","Lawful Neutral","Neutral","Chaotic Neutral","Lawful Evil","Neutral Evil","Chaotic Evil"]);
+const STD=[15,14,13,12,10,8];
+$("ab").innerHTML=AB.map((a,i)=>`<div><label>${a}<select id="a${i}">${STD.map(n=>`<option ${n==STD[i]?"selected":""}>${n}</option>`).join("")}</select></label></div>`).join("");
+const mod=s=>Math.floor((s-10)/2),sg=n=>(n>=0?"+":"")+n;
+// ================= special choices =================
+const CH={};let SPEC=[],AUTO=[];
+const cv=id=>SPEC.some(x=>x.id==id)?CH[id]:undefined;
+const FD={Alert:"Add your proficiency bonus to Initiative rolls, and you can swap Initiative with a willing ally.",Crafter:"Proficiency with three artisan's tools, a discount on nonmagical items, and fast crafting.",Healer:"Use a Healer's Kit to let a creature spend a Hit Die and heal extra, and reroll 1s on healing dice.",Lucky:"Luck Points equal to your proficiency bonus per long rest: spend one for Advantage on a d20 Test or to give an attacker Disadvantage.","Magic Initiate (Cleric)":"Learn two Cleric cantrips and one level 1 Cleric spell; cast that spell once per long rest for free.","Magic Initiate (Druid)":"Learn two Druid cantrips and one level 1 Druid spell; cast that spell once per long rest for free.","Magic Initiate (Wizard)":"Learn two Wizard cantrips and one level 1 Wizard spell; cast that spell once per long rest for free.",Musician:"Proficiency with three musical instruments; after a rest you can give allies Heroic Inspiration.","Savage Attacker":"Once per turn when you hit with a weapon, roll the damage dice twice and use either result.",Skilled:"Gain proficiency in any combination of three skills or tools.","Tavern Brawler":"Stronger Unarmed Strikes, reroll 1s on unarmed damage, improvised weapon training, and push a creature 10 ft.",Tough:"Your HP maximum increases by 2 for each level you have."};
+const FEATS=Object.keys(FD);
+const MIC={"Magic Initiate (Cleric)":["Cl","WIS"],"Magic Initiate (Druid)":["Dr","WIS"],"Magic Initiate (Wizard)":["Wz","INT"]};
+const STYLES=[["Archery","Archery","+2 to attack rolls with ranged weapons."],["Blind Fighting","Blind Fighting","Blindsight with a range of 10 ft."],["Defense","Defense","+1 AC while you wear armor."],["Dueling","Dueling","+2 damage with a melee weapon held in one hand and no other weapon."],["Great Weapon Fighting","Great Weapon Fighting","Treat a 1 or 2 on a damage die as a 3 with two-handed melee weapons."],["Interception","Interception","Reaction: reduce damage to a nearby ally by 1d10 + your proficiency bonus."],["Protection","Protection","Reaction with a shield: impose Disadvantage on an attack against a nearby ally."],["Thrown Weapon Fighting","Thrown Weapon Fighting","Draw thrown weapons as part of the attack; +2 damage with thrown weapons."],["Two-Weapon Fighting","Two-Weapon Fighting","Add your ability modifier to the damage of your extra Light-weapon attack."],["Unarmed Fighting","Unarmed Fighting","Unarmed Strikes deal 1d6 + STR (1d8 with no weapons or shield), and you can deal 1d4 grapple damage."]];
+const BLESSED=["Blessed Warrior","Blessed Warrior","Learn two Cleric cantrips (cast with CHA)."],DRUIDIC=["Druidic Warrior","Druidic Warrior","Learn two Druid cantrips (cast with WIS)."];
+const DRG=[["Black","acid"],["Blue","lightning"],["Brass","fire"],["Bronze","lightning"],["Copper","acid"],["Gold","fire"],["Green","poison"],["Red","fire"],["Silver","cold"],["White","cold"]];
+const GOL=[["Cloud's Jaunt","Cloud's Jaunt","Bonus Action: teleport up to 30 ft (proficiency bonus uses per long rest)."],["Fire's Burn","Fire's Burn","When you hit, add 1d10 fire damage."],["Frost's Chill","Frost's Chill","When you hit, add 1d6 cold damage and reduce the target's speed by 10 ft."],["Hill's Tumble","Hill's Tumble","When you hit a Large or smaller creature, knock it Prone."],["Stone's Endurance","Stone's Endurance","Reaction: reduce damage you take by 1d12 + CON."],["Storm's Thunder","Storm's Thunder","Reaction when hit: deal 1d8 thunder damage to the attacker."]];
+const AA=[["Heavenly Wings","Spectral wings: you gain a Fly Speed equal to your Speed. Your extra damage is radiant."],["Inner Radiance","You shed Bright Light 10 ft (Dim Light 10 ft more), and at the end of each of your turns each creature within 10 ft takes radiant damage equal to your Proficiency Bonus. Your extra damage is radiant."],["Necrotic Shroud","Creatures (not your allies) within 10 ft that can see you make a CHA save (DC 8 + CHA + Proficiency Bonus) or are Frightened until the end of your next turn. Your extra damage is necrotic."]];
+const AAX="Once per long rest, Bonus Action: transform for 1 minute (or until you end it, no action). Choose Heavenly Wings, Inner Radiance or Necrotic Shroud each time you transform. Once on each of your turns, one target of your attack or spell takes extra damage equal to your Proficiency Bonus.";
+const ELF={Drow:["Darkvision 120 ft.","Dancing Lights","Faerie Fire","Darkness"],"High Elf":["","Prestidigitation","Detect Magic","Misty Step"],"Wood Elf":["Speed 35 ft.","Druidcraft","Longstrider","Pass Without Trace"]};
+const TIEF={Abyssal:["Resistance to poison.","Poison Spray","Ray of Sickness","Hold Person"],Chthonic:["Resistance to necrotic damage.","Chill Touch","False Life","Ray of Enfeeblement"],Infernal:["Resistance to fire damage.","Fire Bolt","Hellish Rebuke","Darkness"]};
+const lin=(a,L)=>(a[0]?a[0]+" ":"")+"Cantrip: "+a[1]+(L>=3?"; level 3 spell: "+a[2]:"")+(L>=5?"; level 5 spell: "+a[3]:"")+".";
+const INV=[["Agonizing Blast","Add your CHA modifier to Eldritch Blast damage.","needs Eldritch Blast",1],["Armor of Shadows","Cast Mage Armor on yourself at will, without a slot.","",1],["Devil's Sight","See normally in darkness, magical or not, out to 120 ft.","",1],["Eldritch Mind","Advantage on CON saves to keep your Concentration.","",1],["Eldritch Spear","Greatly extend the range of your Warlock attack cantrips.","needs Eldritch Blast",1],["Fiendish Vigor","Cast False Life on yourself at will, without a slot.","",1],["Gaze of Two Minds","Bonus Action: touch a willing creature and perceive through its senses until your next turn.","",1],["Lessons of the First Ones","Gain one Origin feat of your choice.","",1],["Mask of Many Faces","Cast Disguise Self at will, without a slot.","",1],["Misty Visions","Cast Silent Image at will, without a slot.","",1],["Pact of the Blade","Bonus Action: conjure a pact weapon you attack with using CHA; it can deal necrotic, psychic or radiant damage.","",1],["Pact of the Chain","Cast Find Familiar; your familiar can take special forms such as Imp, Quasit or Sprite.","",1],["Pact of the Tome","Book of Shadows: gain three cantrips from any class list and two level 1 rituals.","",1],["Repelling Blast","When Eldritch Blast hits, push the creature up to 10 ft.","needs Eldritch Blast",1],["Ascendant Step","Cast Levitate on yourself at will.","level 5",5],["Otherworldly Leap","Cast Jump on yourself at will.","level 5",5],["Thirsting Blade","Attack twice with your pact weapon when you take the Attack action.","needs Pact of the Blade, level 5",5]];
+const META=[["Careful Spell","Careful Spell (1 SP)","Pick up to CHA-modifier creatures to automatically succeed on the save against your spell."],["Distant Spell","Distant Spell (1 SP)","Double a spell's range; touch spells gain 30 ft range."],["Empowered Spell","Empowered Spell (1 SP)","Reroll up to CHA-modifier damage dice."],["Extended Spell","Extended Spell (1 SP)","Double a spell's duration (up to 24 hours)."],["Heightened Spell","Heightened Spell (2 SP)","One target has Disadvantage on its first save against the spell."],["Quickened Spell","Quickened Spell (2 SP)","Cast a spell that takes an Action as a Bonus Action."],["Seeking Spell","Seeking Spell (1 SP)","Reroll a missed spell attack roll."],["Subtle Spell","Subtle Spell (1 SP)","Cast a spell without verbal or somatic components."],["Transmuted Spell","Transmuted Spell (1 SP)","Change a spell's damage type (acid, cold, fire, lightning, poison or thunder)."],["Twinned Spell","Twinned Spell (1 SP)","Target a second creature with a single-target spell."]];
+const MAN=[["Commander's Strike","Commander's Strike","Forgo an attack so an ally uses their Reaction to attack; add your die to the damage."],["Disarming Attack","Disarming Attack","Add the die to damage; the target makes a STR save or drops an item."],["Distracting Strike","Distracting Strike","Add the die to damage; the next ally attack on the target has Advantage."],["Evasive Footwork","Evasive Footwork","Add the die to your AC while you move."],["Feinting Attack","Feinting Attack","Bonus Action: gain Advantage on your next attack against a creature and add the die to damage."],["Goading Attack","Goading Attack","Add the die to damage; the target makes a WIS save or has Disadvantage attacking others."],["Lunging Attack","Lunging Attack","Add 5 ft of reach to one attack and add the die to damage."],["Maneuvering Attack","Maneuvering Attack","Add the die to damage; an ally can move without provoking."],["Menacing Attack","Menacing Attack","Add the die to damage; the target makes a WIS save or is Frightened."],["Parry","Parry","Reaction: reduce damage from a melee hit by the die + STR or DEX modifier."],["Precision Attack","Precision Attack","Add the die to an attack roll, before or after you roll."],["Pushing Attack","Pushing Attack","Add the die to damage; the target makes a STR save or is pushed 15 ft."],["Rally","Rally","Bonus Action: an ally gains temporary HP equal to the die + your CHA modifier."],["Riposte","Riposte","Reaction when a creature misses you in melee: attack it, adding the die to damage."],["Sweeping Attack","Sweeping Attack","When you hit, deal the die in damage to a second creature near the first."],["Trip Attack","Trip Attack","Add the die to damage; the target makes a STR save or falls Prone."]];
+const LAND=[["Arid","Arid","Always-prepared spells: Blur, Burning Hands, Fire Bolt."],["Polar","Polar","Always-prepared spells: Fog Cloud, Hold Person, Ray of Frost."],["Temperate","Temperate","Always-prepared spells: Misty Step, Shocking Grasp, Sleep."],["Tropical","Tropical","Always-prepared spells: Acid Splash, Ray of Sickness, Web."]];
+const baseProf=()=>new Set([...BG[$("bg").value].split("|")[2].split(","),...[...document.querySelectorAll("#sk input:checked")].map(b=>b.dataset.s)]);
+const norm=x=>{if(x.kind=="sel"){if(!x.opts.some(o=>o[0]==CH[x.id]))CH[x.id]=x.opts.length?x.opts[0][0]:undefined}else{const cur=CH[x.id]===undefined?(x.def||[]):[...CH[x.id]];CH[x.id]=new Set(cur.filter(v=>x.opts.some(o=>o[0]==v)).slice(0,x.cap))}};
+function buildSpecs(){
+const cl=$("cl").value,L=+$("lv").value,sp=$("sp").value,sub=$("sub").value,bgf=BG[$("bg").value].split("|")[1],S=[];
+const base=baseProf(),free=a=>{const r=a.filter(s=>!base.has(s));return r.length?r:a},skl=a=>a.map(s=>[s,s,""]),abl=d=>[d].concat(["INT","WIS","CHA"].filter(a=>a!=d)).map(a=>[a,a,""]);
+const sel=(id,label,opts,o)=>S.push(Object.assign({id,kind:"sel",label,opts},o||{})),mul=(id,label,opts,cap,o)=>S.push(Object.assign({id,kind:"multi",label,opts,cap},o||{}));
+const cant=c=>SPELLS.filter(x=>x.v==0&&x.c.includes(c)).map(x=>[x.n,x.n,x.d]),l1=c=>SPELLS.filter(x=>x.v==1&&x.c.includes(c)).map(x=>[x.n,x.n,x.d]);
+let auto=[];
+// ---- species ----
+if(sp=="Elf"){sel("elf-lin","Elven Lineage",Object.keys(ELF).map(k=>[k,k,(ELF[k][0]?ELF[k][0]+" ":"")+"Cantrip "+ELF[k][1]+"; "+ELF[k][2]+" at level 3; "+ELF[k][3]+" at level 5."]),{quiet:1});sel("elf-keen","Keen Senses (free skill)",skl(free(["Insight","Perception","Survival"])),{sk:1});sel("sp-abl","Lineage spell ability",abl("INT"))}
+if(sp=="Gnome"){sel("gn-lin","Gnomish Lineage",[["Forest Gnome","Forest Gnome","You know Minor Illusion and always have Speak with Animals prepared; cast it without a slot a number of times equal to your Proficiency Bonus per long rest."],["Rock Gnome","Rock Gnome","You know Mending and Prestidigitation, and can use Prestidigitation to build tiny clockwork devices (Tinker)."]],{quiet:1});sel("sp-abl","Lineage spell ability",abl("INT"))}
+if(sp=="Tiefling"){sel("ti-leg","Fiendish Legacy",Object.keys(TIEF).map(k=>[k,k,TIEF[k][0]+" Cantrip "+TIEF[k][1]+"; "+TIEF[k][2]+" at level 3; "+TIEF[k][3]+" at level 5."]),{quiet:1});sel("sp-abl","Legacy spell ability",abl("CHA"))}
+if(sp=="Dragonborn")sel("db-anc","Draconic Ancestry",DRG.map(d=>[d[0],d[0]+" dragon ("+d[1]+")","Your Breath Weapon and damage resistance use "+d[1]+" damage."]));
+if(sp=="Goliath")sel("go-anc","Giant Ancestry",GOL);
+if(sp=="Human"){sel("hu-skill","Skillful (extra skill)",skl(free(ALL)),{sk:1});const ok=FEATS.filter(f=>f!=bgf);if(!ok.includes(CH["hu-feat"]))CH["hu-feat"]=ok[0];sel("hu-feat","Versatile (extra Origin feat)",ok.map(f=>[f,f,FD[f]]),{re:1})}
+// ---- feats ----
+const fl=[bgf].concat(sp=="Human"?[CH["hu-feat"]]:[]);
+fl.forEach((f,i)=>{if(f=="Skilled")mul("sk"+i,"Skilled: choose 3 skills",skl(free(ALL)),3,{sk:1});
+if(MIC[f]){const nm=f.slice(16,-1);const src=(i==0?"Feat from your "+$("bg").value+" background":"Extra feat from Human")+" - ";sel("mi"+i+"a",src+"Magic Initiate ("+nm+") spell ability",abl(MIC[f][1]));mul("mi"+i+"c",src+"Magic Initiate ("+nm+"): 2 cantrips",cant(MIC[f][0]),2,{spell:"Magic Initiate ("+nm+") cantrips"});mul("mi"+i+"s",src+"Magic Initiate ("+nm+"): 1 level 1 spell",l1(MIC[f][0]),1,{spell:"Magic Initiate ("+nm+") spell"})}});
+// ---- class ----
+if(cl=="Cleric"){sel("order","Divine Order",[["Protector","Protector","Trained with martial weapons and heavy armor."],["Thaumaturge","Thaumaturge","One extra Cleric cantrip, plus a bonus to Arcana and Religion checks equal to your WIS modifier (minimum +1)."]],{re:1});if(CH.order=="Thaumaturge")mul("thau","Thaumaturge: extra Cleric cantrip",cant("Cl"),1,{spell:"Thaumaturge cantrip"})}
+if(cl=="Druid"){sel("primal","Primal Order",[["Magician","Magician","One extra Druid cantrip, plus a bonus to Arcana and Nature checks equal to your WIS modifier (minimum +1)."],["Warden","Warden","Trained with medium armor and martial weapons."]],{re:1});if(CH.primal===undefined||CH.primal=="Magician")mul("magi","Magician: extra Druid cantrip",cant("Dr"),1,{spell:"Magician cantrip"})}
+if(cl=="Fighter"||(cl=="Paladin"&&L>=2)||(cl=="Ranger"&&L>=2)){const o=STYLES.concat(cl=="Paladin"?[BLESSED]:cl=="Ranger"?[DRUIDIC]:[]);sel("style","Fighting Style",o,{re:1});const stv=o.some(x=>x[0]==CH.style)?CH.style:o[0][0];
+if(stv=="Blessed Warrior")mul("bw","Blessed Warrior: 2 Cleric cantrips",cant("Cl"),2,{spell:"Blessed Warrior cantrips"});if(stv=="Druidic Warrior")mul("dw","Druidic Warrior: 2 Druid cantrips",cant("Dr"),2,{spell:"Druidic Warrior cantrips"})}
+if(cl=="Warlock")mul("inv","Eldritch Invocations",INV.filter(x=>x[3]<=L).map(x=>[x[0],x[0],x[1]+(x[2]?" ("+x[2]+")":"")]),L<2?1:L<5?3:5);
+if(cl=="Sorcerer"){if(L>=2)mul("meta","Metamagic",META,2)}
+if(cl=="Fighter"&&L>=3&&sub=="Battle Master")mul("man","Battle Master Maneuvers",MAN,3);
+if(cl=="Barbarian"&&L>=3)sel("pk","Primal Knowledge (extra skill)",skl(free(CL.Barbarian[3].split(","))),{sk:1});
+if(cl=="Bard"&&L>=3&&sub=="College of Lore")mul("lore","College of Lore: 3 bonus skills",skl(free(ALL)),3,{sk:1});
+if(cl=="Ranger"&&L>=3){if(sub=="Hunter")sel("prey","Hunter's Prey",[["Colossus Slayer","Colossus Slayer","Once per turn, add 1d8 damage to a creature that is already hurt."],["Horde Breaker","Horde Breaker","Once per turn, make an extra attack against a different creature near your target."]]);if(sub=="Beast Master")sel("comp","Primal Companion",[["Beast of the Land","Beast of the Land","A sturdy ground beast with a charging attack."],["Beast of the Sea","Beast of the Sea","A swimming beast that can bind a target."],["Beast of the Sky","Beast of the Sky","A flying beast that strikes and moves away."]]);if(sub=="Fey Wanderer")sel("fey","Otherworldly Glamour (skill)",skl(free(["Deception","Performance","Persuasion"])),{sk:1})}
+if(cl=="Druid"&&L>=3&&sub=="Circle of the Land")sel("land","Land type",LAND);
+if(cl=="Monk"&&L>=3&&sub=="Warrior of Mercy")auto=["Insight","Medicine"];
+const wmn=wmCount(cl,L);
+if(wmn){const kw=atkW().filter(n=>WPN.find(q=>q.n==n));if(kw.length>wmn)mul("wm","Weapon Mastery: choose "+wmn+" weapons",kw.map(n=>{const m=WPN.find(q=>q.n==n).p.split(";")[1];return[n,n+" ("+m+")",m+": "+MD[m].replace(/ \(@MOD@ @TYPE@ damage\)/,"").replace("@DC@","8 + ability modifier + proficiency bonus")]}),wmn,{def:kw.slice(0,wmn)})}
+{const ln=2+(cl=="Rogue"?1:0)+(cl=="Ranger"&&L>=2?2:0),SPL={Dwarf:"Dwarvish",Elf:"Elvish",Gnome:"Gnomish",Goliath:"Giant",Halfling:"Halfling",Orc:"Orc",Dragonborn:"Draconic"},std=["Common Sign Language","Draconic","Dwarvish","Elvish","Giant","Gnomish","Goblin","Halfling","Orc"],rare=["Abyssal","Celestial","Deep Speech","Infernal","Primordial","Sylvan","Undercommon"],pref=[SPL[sp],"Elvish","Dwarvish","Halfling","Gnomish","Draconic","Giant","Orc","Goblin"].filter(Boolean);
+ mul("lang","Languages: you know Common"+(cl=="Rogue"?" and Thieves' Cant":cl=="Druid"?" and Druidic":"")+", plus "+ln+" more",std.map(n=>[n,n,""]).concat(rare.map(n=>[n,n,"Rare language: ask your DM"])),ln,{quiet:1,def:[...new Set(pref)].slice(0,ln)})}
+S.forEach(norm);
+// ---- expertise (needs the skill picks above) ----
+const pf=new Set([...base,...auto]);S.filter(x=>x.sk).forEach(x=>{const v=CH[x.id];if(v instanceof Set)v.forEach(q=>pf.add(q));else if(v)pf.add(v)});
+let en=0,pool=ALL.filter(s=>pf.has(s));
+if(cl=="Rogue")en=2;else if(cl=="Bard"&&L>=2)en=2;else if(cl=="Ranger"&&L>=2)en=1;else if(cl=="Wizard"&&L>=2){en=1;pool=pool.filter(s=>["Arcana","History","Investigation","Medicine","Nature","Religion"].includes(s))}
+if(en&&pool.length){mul("exp","Expertise (double proficiency): choose "+en,skl(pool),en,{quiet:1});norm(S[S.length-1])}
+SPEC=S;AUTO=auto}
+const lab=(x,v)=>(x.opts.find(o=>o[0]==v)||[0,v])[1];
+function renderChoices(){buildSpecs();const el=$("chs");
+if(!SPEC.length){el.innerHTML='<p class="hint">No special choices for this character yet. They appear here as your class, species, background and level need them.</p>';return}
+el.innerHTML=SPEC.map(x=>{const re=(x.re||x.sk)?' data-re="1"':"";
+if(x.kind=="sel")return `<div class="ch"><label>${x.label}<select data-ch="${x.id}"${re}>${x.opts.map(o=>`<option value="${o[0]}" title="${o[2]}"${CH[x.id]==o[0]?" selected":""}>${o[1]}</option>`).join("")}</select></label><p class="hint" id="chd-${x.id}">${(x.opts.find(o=>o[0]==CH[x.id])||[])[2]||""}</p></div>`;
+const ke=x.spell?knownExcept(x.id):null;return `<div class="ch"><label>${x.label} <small>(<span id="chn-${x.id}">${CH[x.id].size}</span> of ${x.cap} chosen)</small></label><div class="co">${x.opts.map(o=>{const lk=ke&&!CH[x.id].has(o[0])&&ke.get(o[0]);return `<label${lk?' style="opacity:.45"':""}><input type="checkbox" data-ch="${x.id}" data-cap="${x.cap}"${re} value="${o[0]}"${CH[x.id].has(o[0])?" checked":""}${lk?" disabled":""}><span><b>${o[1]}</b>${lk?"<small>Already yours: "+lk+"</small>":o[2]?"<small>"+o[2]+"</small>":""}</span></label>`}).join("")}</div></div>`}).join("")}
+function chChange(e){const el=e.target,id=el.dataset.ch;if(!id)return;
+if(el.tagName=="SELECT"){CH[id]=el.value;const x=SPEC.find(q=>q.id==id),o=x&&x.opts.find(q=>q[0]==el.value),d=$("chd-"+id);if(d)d.textContent=o?o[2]:""}
+else{const set=CH[id]||(CH[id]=new Set),cap=+el.dataset.cap;if(el.checked){if(set.size>=cap)el.checked=false;else set.add(el.value)}else set.delete(el.value);const n=$("chn-"+id);if(n)n.textContent=set.size}
+if(el.dataset.re)renderChoices();if(/^(gn-lin|elf-lin|ti-leg|sp-abl|mi\d[cs]|thau|magi|bw|dw)$/.test(id)){spDraw();if(el.tagName=="SELECT")renderChoices()}sum()}
+const extraSkills=()=>{const r=[...AUTO];SPEC.filter(x=>x.sk).forEach(x=>{const v=CH[x.id];if(v instanceof Set)r.push(...v);else if(v)r.push(v)});return r};
+const expert=()=>SPEC.some(x=>x.id=="exp")?CH.exp:new Set();
+const SUBSP={"Draconic Sorcery":[[3,["Alter Self","Chromatic Orb","Command","Dragon's Breath"]],[5,["Fear","Fly"]]],"Aberrant Sorcery":[[3,["Arms of Hadar","Calm Emotions","Detect Thoughts","Dissonant Whispers","Mind Sliver"]],[5,["Hunger of Hadar","Sending"]]],"Clockwork Sorcery":[[3,["Aid","Alarm","Lesser Restoration","Protection from Evil and Good"]],[5,["Dispel Magic","Protection from Energy"]]],"Arcane Trickster":[[3,["Mage Hand"]]],
+"Oath of Devotion":[[3,["Protection from Evil and Good","Shield of Faith"]],[5,["Aid","Zone of Truth"]]],"Oath of Glory":[[3,["Guiding Bolt","Heroism"]],[5,["Enhance Ability","Magic Weapon"]]],"Oath of the Ancients":[[3,["Ensnaring Strike","Speak with Animals"]],[5,["Misty Step","Moonbeam"]]],"Oath of Vengeance":[[3,["Bane","Hunter's Mark"]],[5,["Hold Person","Misty Step"]]],
+"Life Domain":[[3,["Aid","Bless","Cure Wounds","Lesser Restoration"]],[5,["Mass Healing Word","Revivify"]]],"Light Domain":[[3,["Burning Hands","Faerie Fire","Scorching Ray","See Invisibility"]],[5,["Daylight","Fireball"]]],"Trickery Domain":[[3,["Charm Person","Disguise Self","Invisibility","Pass Without Trace"]],[5,["Hypnotic Pattern","Nondetection"]]],"War Domain":[[3,["Guiding Bolt","Magic Weapon","Shield of Faith","Spiritual Weapon"]],[5,["Crusader's Mantle","Spirit Guardians"]]],
+"Circle of the Moon":[[3,["Cure Wounds","Moonbeam","Starry Wisp"]],[5,["Conjure Animals"]]],"Circle of the Sea":[[3,["Fog Cloud","Gust of Wind","Ray of Frost","Shatter","Thunderwave"]],[5,["Lightning Bolt","Water Breathing"]]],
+"Archfey Patron":[[3,["Calm Emotions","Faerie Fire","Misty Step","Phantasmal Force","Sleep"]],[5,["Blink","Plant Growth"]]],"Celestial Patron":[[3,["Aid","Cure Wounds","Guiding Bolt","Lesser Restoration","Light","Sacred Flame"]],[5,["Daylight","Revivify"]]],"Fiend Patron":[[3,["Burning Hands","Command","Scorching Ray","Suggestion"]],[5,["Fireball","Stinking Cloud"]]],"Great Old One Patron":[[3,["Detect Thoughts","Dissonant Whispers","Phantasmal Force","Tasha's Hideous Laughter"]],[5,["Clairvoyance","Hunger of Hadar"]]],
+"Fey Wanderer":[[3,["Charm Person"]],[5,["Misty Step"]]],"Gloom Stalker":[[3,["Disguise Self"]],[5,["Rope Trick"]]],"College of Glamour":[[3,["Charm Person","Mirror Image"]]]};
+const LANDSP={Arid:[["Blur","Burning Hands","Fire Bolt"],["Fireball"]],Polar:[["Fog Cloud","Hold Person","Ray of Frost"],["Sleet Storm"]],Temperate:[["Misty Step","Shocking Grasp","Sleep"],["Lightning Bolt"]],Tropical:[["Acid Splash","Ray of Sickness","Web"],["Stinking Cloud"]]};
+// spells a character gets automatically from species or subclass: {n, src, ab (null = class ability), free (casts per long rest without a slot)}
+function grants(){const L=+$("lv").value,sp=$("sp").value,cl=$("cl").value,sub=$("sub").value,g=[],sab=CH["sp-abl"]||(sp=="Tiefling"?"CHA":"INT"),add=(n,src,ab,free)=>g.push({n,src,ab,free:free||0});
+ if(sp=="Gnome"){if((CH["gn-lin"]||"Forest Gnome")=="Forest Gnome"){add("Minor Illusion","Forest Gnome",sab);add("Speak with Animals","Forest Gnome",sab,L>4?3:2)}else{add("Mending","Rock Gnome",sab);add("Prestidigitation","Rock Gnome",sab)}}
+ if(sp=="Elf"){const k=ELF[CH["elf-lin"]]?CH["elf-lin"]:"Drow",e=ELF[k];add(e[1],k,sab);if(L>=3)add(e[2],k,sab,1);if(L>=5)add(e[3],k,sab,1)}
+ if(sp=="Tiefling"){const k=TIEF[CH["ti-leg"]]?CH["ti-leg"]:"Abyssal",e=TIEF[k];add("Thaumaturgy","Tiefling",sab);add(e[1],k+" legacy",sab);if(L>=3)add(e[2],k+" legacy",sab,1);if(L>=5)add(e[3],k+" legacy",sab,1)}
+ if(sp=="Aasimar")add("Light","Aasimar","CHA");
+ if(L>=3&&SUBSP[sub]&&CL[cl][4].split(",").includes(sub))SUBSP[sub].forEach(([lv,ns])=>{if(L>=lv)ns.forEach(n=>add(n,sub,null))});
+ const pb=L>4?3:2;
+ if(cl=="Paladin"){if(L>=2)add("Divine Smite","Paladin's Smite",null,1);if(L>=5)add("Find Steed","Faithful Steed",null,1)}
+ if(cl=="Ranger")add("Hunter's Mark","Favored Enemy",null,L<5?2:3);
+ if(cl=="Druid"){add("Speak with Animals","Druidic",null);if(L>=3&&sub=="Circle of the Land"){const ls=LANDSP[CH.land]||LANDSP.Arid;ls[0].forEach(n=>add(n,"Circle of the Land",null));if(L>=5)ls[1].forEach(n=>add(n,"Circle of the Land",null))}if(L>=3&&sub=="Circle of the Stars"){add("Guidance","Star Map",null);add("Guiding Bolt","Star Map",null,pb)}}
+ return g.filter(x=>SPELLS.some(q=>q.n==x.n))}
+// spells picked through feats and class options (Magic Initiate, Thaumaturge, ...)
+const featSp=()=>{const r=[];SPEC.filter(x=>x.spell&&CH[x.id]).forEach(x=>{const mm=x.id.match(/^mi(\d)/),src=x.spell.replace(/ (cantrips?|spell)$/,""),ab=mm?(CH["mi"+mm[1]+"a"]||null):x.id=="bw"?"CHA":x.id=="dw"?"WIS":null,free=mm&&/s$/.test(x.id)?1:0;CH[x.id].forEach(n=>r.push({n,src,ab,free,id:x.id}))});return r};
+const knownExcept=id=>{const k=new Map;grants().forEach(g=>k.set(g.n,g.src));featSp().forEach(f=>{if(f.id!=id)k.set(f.n,f.src)});if(id!="pick")pick.forEach(n=>k.set(n,"your "+$("cl").value+" spells"));return k};
+const spSrc=()=>{const m=new Map;pick.forEach(n=>m.set(n,{src:$("cl").value,ab:null,free:0}));featSp().forEach(f=>{if(!m.has(f.n))m.set(f.n,f)});grants().forEach(g=>{if(!m.has(g.n))m.set(g.n,g)});return m};
+const spDupes=()=>{const seen=new Map,d=[],chk=(n,src)=>{if(seen.has(n)&&seen.get(n)!=src)d.push([n,seen.get(n),src]);else seen.set(n,src)};grants().forEach(g=>{if(!seen.has(g.n))seen.set(g.n,g.src)});featSp().forEach(f=>chk(f.n,f.src));pick.forEach(n=>chk(n,"your "+$("cl").value+" spell picks"));return d};
+const srcTag=src=>!src||src==$("cl").value||src=="Arcane Trickster"?"":/^Magic Initiate/.test(src)?"MI":/Gnome$/.test(src)?"Gnome":/ legacy$|^Tiefling$/.test(src)?"Tiefling":/ Sorcery$/.test(src)?src.split(" ")[0]:/^Oath of /.test(src)?"Oath":/ Domain$/.test(src)?"Domain":/ Patron$/.test(src)?"Patron":/^Circle of /.test(src)?"Circle":src;
+function srcNotes(s,gc){const g={};spSrc().forEach((v,n)=>{const tg=srcTag(v.src);if(!tg)return;const x=g[tg]=g[tg]||{src:v.src,ab:v.ab,free:[]};if(v.free)x.free.push(n+(v.free>1?" "+v.free+"x":""))});
+ return Object.keys(g).map(tg=>{const x=g[tg],i=x.ab?AB.indexOf(x.ab):-1;let r=(tg==x.src?tg:tg+" = "+x.src)+": ";
+  if(x.ab&&(!gc||x.ab!=gc[0]))r+="cast with "+x.ab+" (attack "+sg(s.pb+s.m[i])+", save DC "+(8+s.pb+s.m[i])+")";else if(x.ab)r+="cast with "+x.ab;else r+="always prepared, and doesn't count against your prepared spells";
+  if(x.free.length)r+=". Free without a slot, per long rest: "+x.free.join(", ");return r+"."})}
+const allSp=()=>{const r=new Set(pick);featSp().forEach(f=>r.add(f.n));grants().forEach(g=>r.add(g.n));return r};
+const spT0=s=>{let x=SP[s.sp][1];const g=id=>cv(id)||"";
+ if(s.sp=="Gnome")x=x.replace("Gnomish Lineage (Forest or Rock Gnome — pick one)","Gnomish Lineage ("+g("gn-lin")+")");
+ if(s.sp=="Elf")x=x.replace("Elven Lineage (Drow, High Elf or Wood Elf — pick one)","Elven Lineage ("+g("elf-lin")+")");
+ if(s.sp=="Tiefling")x=x.replace("Fiendish Legacy (Abyssal, Chthonic or Infernal — pick one: resistance + spells)","Fiendish Legacy ("+g("ti-leg")+": resistance + spells)");
+ if(s.sp=="Dragonborn"){const d=DRG.find(q=>q[0]==g("db-anc"))||DRG[0];x=x.replace("Draconic Ancestry (pick a dragon type)","Draconic Ancestry ("+d[0]+" dragon, "+d[1]+")").replace("Damage Resistance (matches ancestry)","Damage Resistance ("+d[1]+")").replace("Breath Weapon (1d10 damage, 2d10 at level 5)","Breath Weapon (replaces one of your attacks, 15-ft cone or 30-ft line, DEX save DC "+(8+s.m[2]+s.pb)+", "+(s.L>=5?"2d10 ":"1d10 ")+d[1]+" damage, half on a success, "+s.pb+" uses per long rest)");if(s.L>=5)x=x.replace(/\.$/,"")+"; Draconic Flight (Bonus Action, fly speed equal to your Speed for 10 minutes, once per long rest)."}
+ if(s.sp=="Goliath")x=x.replace("Giant Ancestry (pick a giant boon, PB uses/long rest)","Giant Ancestry ("+g("go-anc")+", PB uses/long rest)");
+ if(s.sp=="Aasimar"&&s.L>=3)x=x.replace(/\.$/,"")+"; Celestial Revelation (transform for 1 minute, once per long rest).";
+ return x};
+const spCards=s=>{const r=[];spT0(s).split(/;\s+/).map(q=>q.replace(/\.$/,"")).filter(Boolean).forEach(q=>{const i=q.indexOf(" ("),nm=i>0?q.slice(0,i):q;r.push([nm,s.sp+" trait",nm=="Celestial Revelation"?AAX:(i>0?q.slice(i+2).replace(/\)$/,""):"")])});if(s.sp=="Aasimar"&&s.L>=3)AA.forEach(a=>r.push([a[0],"Celestial Revelation option",a[1]]));return r};
+function spText(s){const L=s.L,r=[spT0(s)],ab=cv("sp-abl"),i=AB.indexOf(ab||"INT"),ca=ab?" Spellcasting ability: "+ab+" (save DC "+(8+s.pb+s.m[i])+", spell attack "+sg(s.pb+s.m[i])+").":"",gd=id=>{const x=SPEC.find(q=>q.id==id),o=x&&x.opts.find(q=>q[0]==CH[id]);return o?o[1]+": "+o[2]:""};
+if(s.sp=="Elf")r.push("Lineage: "+cv("elf-lin")+". "+lin(ELF[cv("elf-lin")],L)+" Keen Senses skill: "+cv("elf-keen")+"."+ca);
+if(s.sp=="Gnome")r.push("Lineage: "+gd("gn-lin")+ca);
+if(s.sp=="Tiefling")r.push("Legacy: "+cv("ti-leg")+". "+lin(TIEF[cv("ti-leg")],L)+" Thaumaturgy cantrip (Otherworldly Presence)."+ca);
+if(s.sp=="Dragonborn")r.push("Ancestry: "+gd("db-anc"));
+if(s.sp=="Goliath")r.push("Giant Ancestry: "+gd("go-anc"));
+if(s.sp=="Human")r.push("Skillful skill: "+cv("hu-skill")+". Versatile feat: "+cv("hu-feat")+".");
+return r.join("\n")}
+function bgOpts(){const b=BG[$("bg").value].split("|")[0].split(",");opt($("b2"),b);opt($("b1"),b);$("b1").selectedIndex=1}
+function subOpts(){const c=CL[$("cl").value],prev=$("sub").value,lo=+$("lv").value<3;opt($("sub"),lo?["None yet (level 3)"]:c[4].split(","));if(!lo&&c[4].split(",").includes(prev))$("sub").value=prev;$("sub").disabled=lo}
+function clOpts(){const c=CL[$("cl").value];subOpts();const pool=c[3]?c[3].split(","):ALL;
+$("skh").textContent=`Choose ${c[2]} skills from your class list. Your background already gives you two (locked).`;
+$("sk").innerHTML=ALL.map(s=>`<label><input type="checkbox" data-s="${s}" ${pool.includes(s)?"":"disabled"}>${s}</label>`).join("")}
+function st(){const cl=CL[$("cl").value],[bgA,feat,bgS]=BG[$("bg").value].split("|"),bs=bgS.split(",");
+const sc=AB.map((_,i)=>+$("a"+i).value);
+if($("b1").value==$("b2").value){/* +1 ignored if same */}
+const f=sc.slice();f[AB.indexOf($("b2").value)]+=2;if($("b1").value!=$("b2").value)f[AB.indexOf($("b1").value)]+=1;
+const m=f.map(mod),L=+$("lv").value,pb=2+(L>4),saves=cl[1].split(",");
+// enforce skill cap
+const boxes=[...document.querySelectorAll("#sk input")];boxes.forEach(b=>{if(bs.includes(b.dataset.s)){b.checked=false;b.disabled=true;b.parentNode.style.opacity=.6}else{b.disabled=!(CL[$("cl").value][3]?CL[$("cl").value][3].split(","):ALL).includes(b.dataset.s);b.parentNode.style.opacity=b.disabled?.4:1}});
+let ch=boxes.filter(b=>b.checked);while(ch.length>cl[2]){ch.pop().checked=false}
+const prof=new Set([...bs,...boxes.filter(b=>b.checked).map(b=>b.dataset.s),...extraSkills()]);
+const exs=expert(),obn=(()=>{const c=$("cl").value;if(c=="Cleric"&&cv("order")=="Thaumaturge")return["Arcana","Religion"];if(c=="Druid"&&cv("primal")=="Magician")return["Arcana","Nature"];return[]})(),obv=Math.max(1,m[4]);
+const skills=SK.map(([n,a])=>{const i="SDCIWH".indexOf(a),e=prof.has(n)&&exs.has(n);return{n,a:AB[i],p:prof.has(n),e,v:m[i]+(prof.has(n)?pb:0)+(e?pb:0)+(obn.includes(n)?obv:0)}});
+const feats=[feat].concat($("sp").value=="Human"&&cv("hu-feat")?[cv("hu-feat")]:[]);const hd=cl[0],hp=hd+m[2]+(L-1)*(Math.floor(hd/2)+1+m[2])+($("sp").value=="Dwarf"?L:0)+(feats.includes("Tough")?2*L:0)+($("cl").value=="Sorcerer"&&L>=3&&$("sub").value=="Draconic Sorcery"?L:0);
+const gr=GR(m,pb,$("cl").value,f,L);return{...gr,feats,gear:((KIT[$("cl").value]||[])[$("kit").selectedIndex]||{g:""}).g,L,subt:L<3?"":" ("+$("sub").value+")",name:$("name").value.trim()||"Unnamed Hero",blank:!$("name").value.trim(),sp:$("sp").value,bg:$("bg").value,cl:$("cl").value,sub:$("sub").value,al:$("al").value,feat,f,m,pb,saves,skills,hp,hd,init:m[1]+(feats.includes("Alert")?pb:0),spd:SP[$("sp").value][0]+gr.dspd+(cv("elf-lin")=="Wood Elf"?5:0),pp:10+skills.find(s=>s.n=="Perception").v,left:cl[2]-boxes.filter(b=>b.checked).length}}
+function sum(){const s=st(),v=i=>$(i).value,bg=BG[v("bg")].split("|");
+$("gw").textContent=s.warn.join(" ");{const k=curKit(),gi=gearInfo();$("kd").textContent=k.d+" Contains: "+gi.kit.join(", ")+". Your "+$("bg").value+" background adds: "+gi.bg.join(", ")+". Starting gold: "+gi.gp+" GP."}
+$("d-sp").textContent=DSP[v("sp")];$("d-bg").textContent=DBG[v("bg")]+" Skills: "+bg[2].replace(/,/g,", ")+". Origin feat: "+bg[1]+".";$("d-cl").textContent=DCL[v("cl")];
+{let ft=s.L<3?"You choose your subclass at level 3.":((SF[v("sub")]||[""])[0].split(". ")[0]);if(ft&&!/[.)]$/.test(ft))ft+=".";$("d-sub").textContent=ft}
+$("lvh").textContent=(s.L>=4?"Level 4+ grants an Ability Score Improvement or feat; add it by hand in the notes box (not automated yet). ":"")+(s.L<3?"You choose your subclass at level 3.":"");
+const tt={sp:v("sp")+": "+SP[v("sp")][1],bg:`${v("bg")}: +2/+1 to ${bg[0].replace(/,/g,"/")}; Origin feat ${bg[1]}; skills ${bg[2].replace(/,/g,", ")}.`,cl:`${v("cl")}: d${s.hd} hit die; saving throws ${s.saves.join(", ")}.`,sub:s.L<3?"Subclasses unlock at level 3.":(SF[v("sub")]||[v("sub")+" subclass."])[0],al:"A rough guide to how your character behaves. A roleplay prompt, not a rule."};
+const qs={sp:v("sp")+" species",bg:v("bg")+" background",cl:v("cl")+" class",sub:s.L<3?v("cl")+" subclass":v("sub")+" "+v("cl"),al:"alignment"};
+Object.keys(qs).forEach(k=>{const e=$("q-"+k);e.href="https://www.dndbeyond.com/search?q="+encodeURIComponent(qs[k]);e.title=tt[k]+" (Click to search D&D Beyond.)"});$("sum").textContent=`${s.name} — ${s.sp} ${s.cl}${s.subt} · Level ${s.L} · ${s.bg}\nSTR ${s.f[0]} DEX ${s.f[1]} CON ${s.f[2]} INT ${s.f[3]} WIS ${s.f[4]} CHA ${s.f[5]}\nHP ${s.hp} · AC ${s.ac} · Speed ${s.spd} ft · Prof +${s.pb}\nFeat: ${s.feats.join(", ")} · Skills still to pick: ${s.left}`}
+["sp","bg","cl","sub","al","b1","b2","name","lv","ar","sh","w1","w2","w3","kit"].concat([0,1,2,3,4,5].map(i=>"a"+i)).forEach(id=>$(id).addEventListener("input",()=>{if(id=="bg")bgOpts();if(id=="cl"){clOpts();kitOpts()}if(id=="kit")applyKit();if(id=="lv")subOpts();if(id=="cl"||id=="sub"||id=="lv")spRender();renderChoices();if(id=="sp")spDraw();sum()}));
+$("sk").addEventListener("change",()=>{sum();renderChoices();sum()});$("spk").addEventListener("change",e=>{const c=getC(),b=e.target;if(!c||!b.dataset.sp)return;const x=SPELLS.find(q=>q.n==b.dataset.sp),g=x.v?1:0,cap=g?c[2]:c[1],cnt=[...pick].filter(n=>(SPELLS.find(q=>q.n==n).v?1:0)==g).length;if(b.checked){if(cnt>=cap){b.checked=false;sum();return}pick.add(x.n)}else pick.delete(x.n);sum()});opt($("ar"),ARM.map(a=>a.n));opt($("sh"),["No shield","Shield (+2 AC)"]);["w1","w2","w3"].forEach(i=>opt($(i),["— none —"].concat(WPN.map(w=>w.n))));$("chs").addEventListener("change",chChange);bgOpts();clOpts();kitOpts();spRender();renderChoices();sum();
+// ================= v6: abilities, recommendations, guided mode, warnings =================
+const PBC={8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9};let ABM="std",PREV=[],abTouched=false;
+const RA={Barbarian:"STR,CON,DEX,WIS,CHA,INT",Bard:"CHA,DEX,CON,WIS,INT,STR",Cleric:"WIS,CON,STR,CHA,DEX,INT",Druid:"WIS,CON,DEX,INT,CHA,STR",Fighter:"STR,CON,DEX,WIS,INT,CHA",Monk:"DEX,WIS,CON,STR,INT,CHA",Paladin:"STR,CHA,CON,WIS,DEX,INT",Ranger:"DEX,WIS,CON,STR,INT,CHA",Rogue:"DEX,CON,WIS,INT,CHA,STR",Sorcerer:"CHA,CON,DEX,WIS,INT,STR",Warlock:"CHA,CON,DEX,WIS,INT,STR",Wizard:"INT,CON,DEX,WIS,CHA,STR"};
+const RAW={Barbarian:"STR powers your attacks; CON keeps you alive.",Bard:"CHA fuels your spells and Bardic Inspiration; DEX helps AC and initiative.",Cleric:"WIS powers your spells; CON and armor keep you standing.",Druid:"WIS powers your spells; CON protects your concentration.",Fighter:"STR (or DEX for a ranged build) for attacks; CON for hit points.",Monk:"DEX for attacks and AC; WIS adds to AC and your Ki features.",Paladin:"STR for attacks and heavy armor; CHA for your aura and spells.",Ranger:"DEX for ranged attacks and AC; WIS for spells and perception.",Rogue:"DEX is everything: attacks, AC, stealth and initiative.",Sorcerer:"CHA powers your spells; CON protects concentration and HP.",Warlock:"CHA powers your spells and Eldritch Blast; CON and DEX for survival.",Wizard:"INT powers your spells; CON and DEX keep you alive."};
+const REC={
+Barbarian:{sub:"Path of the Berserker",sk:["Athletics","Perception","Survival","Intimidation"]},
+Bard:{sub:"College of Lore",sk:["Persuasion","Performance","Insight","Perception","Deception","Stealth"],c:["Vicious Mockery","Minor Illusion","Prestidigitation","Mage Hand"],l:["Healing Word","Faerie Fire","Heroism","Tasha's Hideous Laughter","Sleep","Cure Wounds","Thunderwave","Invisibility","Hold Person","Suggestion","Lesser Restoration","Hypnotic Pattern","Dispel Magic"]},
+Cleric:{sub:"Life Domain",sk:["Insight","Medicine","Persuasion","Religion","History"],c:["Sacred Flame","Guidance","Toll the Dead","Spare the Dying"],l:["Cure Wounds","Healing Word","Bless","Guiding Bolt","Shield of Faith","Sanctuary","Spiritual Weapon","Lesser Restoration","Aid","Prayer of Healing","Spirit Guardians","Revivify","Mass Healing Word"]},
+Druid:{sub:"Circle of the Land",sk:["Perception","Nature","Survival","Insight","Medicine"],c:["Druidcraft","Produce Flame","Shillelagh","Guidance"],l:["Healing Word","Entangle","Goodberry","Cure Wounds","Faerie Fire","Thunderwave","Moonbeam","Spike Growth","Barkskin","Pass Without Trace","Call Lightning","Conjure Animals"]},
+Fighter:{sub:"Champion",sk:["Athletics","Perception","Intimidation","Survival","Acrobatics"]},
+Monk:{sub:"Warrior of the Open Hand",sk:["Acrobatics","Athletics","Stealth","Insight"]},
+Paladin:{sub:"Oath of Devotion",sk:["Athletics","Persuasion","Insight","Intimidation","Medicine"],l:["Bless","Cure Wounds","Shield of Faith","Divine Favor","Heroism","Searing Smite","Aid","Lesser Restoration","Magic Weapon","Revivify","Dispel Magic"]},
+Ranger:{sub:"Hunter",sk:["Stealth","Perception","Survival","Nature","Athletics","Investigation"],l:["Hunter's Mark","Cure Wounds","Goodberry","Fog Cloud","Ensnaring Strike","Longstrider","Pass Without Trace","Spike Growth","Barkskin","Lesser Restoration","Conjure Animals"]},
+Rogue:{sub:"Thief",sk:["Stealth","Sleight of Hand","Perception","Acrobatics","Deception","Investigation","Insight"]},
+Sorcerer:{sub:"Draconic Sorcery",sk:["Persuasion","Arcana","Insight","Deception"],c:["Fire Bolt","Minor Illusion","Prestidigitation","Light","Ray of Frost","Shocking Grasp"],l:["Magic Missile","Shield","Mage Armor","Sleep","Burning Hands","Thunderwave","Misty Step","Scorching Ray","Hold Person","Invisibility","Mirror Image","Fireball","Counterspell","Haste","Fly"]},
+Warlock:{sub:"Fiend Patron",sk:["Intimidation","Deception","Arcana","Investigation","History"],c:["Eldritch Blast","Mage Hand","Prestidigitation","Chill Touch"],l:["Hex","Armor of Agathys","Hellish Rebuke","Charm Person","Expeditious Retreat","Misty Step","Hold Person","Invisibility","Darkness","Counterspell","Fly","Hypnotic Pattern","Vampiric Touch"]},
+Wizard:{sub:"Evoker",sk:["Arcana","Investigation","History","Insight","Medicine"],c:["Fire Bolt","Mage Hand","Minor Illusion","Prestidigitation","Light"],l:["Shield","Magic Missile","Mage Armor","Sleep","Burning Hands","Thunderwave","Find Familiar","Detect Magic","Misty Step","Scorching Ray","Invisibility","Mirror Image","Hold Person","Fireball","Counterspell","Fly","Haste","Hypnotic Pattern"]}};
+const PF={inv:["Agonizing Blast","Armor of Shadows","Eldritch Mind","Devil's Sight","Fiendish Vigor"],meta:["Quickened Spell","Empowered Spell","Subtle Spell","Careful Spell"],man:["Precision Attack","Trip Attack","Riposte","Parry","Menacing Attack","Disarming Attack"],exp:["Stealth","Perception","Sleight of Hand","Arcana","Investigation","Persuasion","History"],cant:["Guidance","Light","Sacred Flame","Druidcraft","Mage Hand","Minor Illusion","Prestidigitation","Thaumaturgy","Produce Flame"],l1:["Healing Word","Cure Wounds","Shield","Magic Missile","Bless","Goodberry","Detect Magic"]};
+function abBuild(vals){const opts=ABM=="std"?STD:[8,9,10,11,12,13,14,15];$("ab").innerHTML=AB.map((a,i)=>`<div><label>${a}<select id="a${i}">${opts.map(n=>`<option value="${n}" ${n==vals[i]?"selected":""}>${n}${ABM=="pb"?" ("+PBC[n]+" pts)":""}</option>`).join("")}</select></label><small class="hint" id="af${i}"></small></div>`).join("");PREV=AB.map((_,i)=>$("a"+i).value)}
+function recAb(){const k=$("cl").value,order=RA[k].split(",");abBuild(AB.map(a=>STD[order.indexOf(a)]));
+const bgA=BG[$("bg").value].split("|")[0].split(",").slice().sort((x,y)=>order.indexOf(x)-order.indexOf(y));$("b2").value=bgA[0];$("b1").value=bgA[1];abTouched=false}
+function abChange(el){abTouched=true;const i=+el.id.slice(1);if(ABM=="std"){const v=el.value,j=AB.findIndex((_,k)=>k!=i&&$("a"+k).value==v);if(j>=0)$("a"+j).value=PREV[i]}else{const cost=AB.reduce((t,_,k)=>t+PBC[$("a"+k).value],0);if(cost>27)el.value=PREV[i]}PREV=AB.map((_,k)=>$("a"+k).value)}
+function abStatus(){if(ABM=="std"){const v=AB.map((_,i)=>$("a"+i).value);return{note:"Standard array: use each of 15, 14, 13, 12, 10, 8 once. If you pick a number another stat already has, the two swap.",bad:new Set(v).size<6?"Each standard-array number should be used exactly once.":""}}
+const sp=AB.reduce((t,_,k)=>t+PBC[$("a"+k).value],0);return{note:`Point buy: ${sp} of 27 points spent (${27-sp} left). Costs are shown in each list; scores run from 8 to 15 before your background bonus.`,bad:sp<27?`You have ${27-sp} unspent point-buy point${27-sp>1?"s":""}.`:""}}
+function recSkills(){const k=$("cl").value,c=CL[k],bs=BG[$("bg").value].split("|")[2].split(","),pool=c[3]?c[3].split(","):ALL,want=[];for(const s of REC[k].sk.concat(pool))if(pool.includes(s)&&!bs.includes(s)&&!want.includes(s)&&want.length<c[2])want.push(s);
+document.querySelectorAll("#sk input").forEach(b=>{b.checked=want.includes(b.dataset.s)});renderChoices();sum()}
+function recSub(){const k=$("cl").value;if(+$("lv").value>=3&&[...$("sub").options].some(o=>o.value==REC[k].sub))$("sub").value=REC[k].sub;spRender();renderChoices()}
+function recChoices(){for(let pass=0;pass<2;pass++){SPEC.forEach(x=>{if(x.kind!="multi")return;const k=$("cl").value,names=x.opts.map(o=>o[0]);let pref=[];
+if(x.sk)pref=REC[k].sk;else if(x.id=="inv")pref=PF.inv;else if(x.id=="meta")pref=PF.meta;else if(x.id=="man")pref=PF.man;else if(x.id=="exp")pref=PF.exp;else if(x.id=="wm"||x.id=="lang")pref=x.def||[];else if(x.spell)pref=(/spell$/.test(x.spell)?PF.l1:PF.cant);
+const ke=x.spell?knownExcept(x.id):new Map,order=pref.filter(n=>names.includes(n)&&!ke.has(n)).concat(names.filter(n=>!pref.includes(n)&&!ke.has(n)));CH[x.id]=new Set(order.slice(0,x.cap))});renderChoices()}sum()}
+function recSpells(){const c=getC();if(!c)return;pick.clear();const k=$("cl").value,r=REC[k]||REC.Wizard,kn=knownExcept("pick"),pool=SPELLS.filter(x=>x.c.includes(c[3])&&x.v<=c[5]&&!kn.has(x.n)),has=n=>pool.find(x=>x.n==n);
+const take=(prefs,v,cap)=>{let n=0;const want=prefs.filter(p=>has(p)&&(has(p).v?1:0)==v);for(const p of want){if(n>=cap)break;pick.add(p);n++}for(const x of pool){if(n>=cap)break;if((x.v?1:0)==v&&!pick.has(x.n)){pick.add(x.n);n++}}};
+take((r.c||REC.Wizard.c),0,c[1]);take((r.l||REC.Wizard.l),1,c[2]);spDraw();sum()}
+function recAll(){recAb();recSub();recSkills();recChoices();recSpells();sum()}
+// ---- warnings ----
+function warnings(){const s=st(),w=[],c=getC();if(!$("name").value.trim())w.push([1,"Give your character a name."]);
+const ab=abStatus();if(ab.bad)w.push([2,ab.bad]);if(s.left>0)w.push([3,`Pick ${s.left} more class skill${s.left>1?"s":""}.`]);
+SPEC.forEach(x=>{if(x.kind=="multi"){const need=Math.min(x.cap,x.opts.length),have=CH[x.id]?CH[x.id].size:0;if(have<need)w.push([4,`${x.label.replace(/^(Extra feat from Human|Feat from your [^-]*) - /,"")}: ${need-have} more to pick.`])}});
+spDupes().forEach(d=>w.push([/^your /.test(d[2])?6:4,`${d[0]} is chosen twice (${d[1]} and ${d[2]}). Swap one of them for a different spell.`]));
+if(c){const cc=[...pick].filter(x=>!SPELLS.find(q=>q.n==x).v).length,lc=pick.size-cc;if(cc>c[1])w.push([6,`Too many cantrips: uncheck ${cc-c[1]}.`]);if(lc>c[2])w.push([6,`Too many spells: uncheck ${lc-c[2]}.`]);if(c[1]>cc)w.push([6,`Pick ${c[1]-cc} more cantrip${c[1]-cc>1?"s":""}.`]);if(c[2]>lc)w.push([6,`Pick ${c[2]-lc} more spell${c[2]-lc>1?"s":""}.`])}return w}
+const GT=["The basics","Ability scores","Skills","Special choices","Starting gear","Spells","Notes & story","Review & download"];let GS=1;const VIS=new Set([1]);
+const skipStep=n=>(n==4&&!SPEC.length)||(n==6&&!getC());
+function gGo(n){GS=Math.max(1,Math.min(8,n));VIS.add(GS);document.querySelectorAll(".step").forEach(s=>s.classList.toggle("on",+s.dataset.n==GS));$("gback").disabled=GS==1;$("gnext").style.visibility=GS==8?"hidden":"visible";$("gstep").textContent=`Step ${GS} of 8: ${GT[GS-1]}`;
+if(GS==8||document.body.classList.contains("guided"))try{window.scrollTo(0,0)}catch(e){}warn()}
+function warn(){const w=warnings(),by={};w.forEach(x=>by[x[0]]=1);
+$("gpills").innerHTML=GT.map((t,i)=>`<button type="button" class="pill${i+1==GS?" on":""}${by[i+1]&&VIS.has(i+1)&&i+1!=GS?" bad":""}${skipStep(i+1)?" skip":""}" data-g="${i+1}">${i+1}. ${t}</button>`).join("");
+$("wr").innerHTML=w.length?`<b>${w.length} thing${w.length>1?"s":""} still to finish</b> (you can still download, but the sheet will be incomplete):<ul>${w.map(x=>`<li>${x[1]} <button type="button" class="sec" data-go="${x[0]}">Go fix</button></li>`).join("")}</ul>`:'<b class="ok">✓ Everything looks complete.</b>';
+{const nt=st().warn.slice();if(+$("lv").value>=4)nt.push("Level 4+ grants an Ability Score Improvement or feat. Add it in the Notes box for now (not automated yet).");if(nt.length)$("wr").innerHTML+=`<p class="fin"><b>Good to know:</b> ${nt.join(" ")}</p>`}
+$("pdf").textContent=w.length?`Download anyway (${w.length} unfinished)`:"Download character sheet (PDF)";
+const s=st();AB.forEach((_,i)=>{const e=$("af"+i);if(e)e.textContent=`Final ${s.f[i]} (${sg(s.m[i])})`});
+const ab=abStatus();$("abpts").textContent=ab.note;const k=$("cl").value;$("abwhy").textContent=`Recommended for a ${k}: ${RA[k].split(",").slice(0,3).join(", then ")}. ${RAW[k]}`;$("aberr").textContent=ab.bad?"⚠ "+ab.bad:""}
+const _sum=sum;sum=function(){_sum();spCount();warn();codeUpd()};
+// ---- wiring ----
+$("ab").addEventListener("input",e=>{if(e.target.id&&/^a\d$/.test(e.target.id)){abChange(e.target);renderChoices();sum()}});
+$("abm").addEventListener("input",()=>{ABM=$("abm").value;recAb();renderChoices();sum()});
+$("abrec").addEventListener("click",()=>{recAb();renderChoices();sum()});
+["b1","b2"].forEach(i=>$(i).addEventListener("input",()=>{abTouched=true}));
+["cl","bg"].forEach(i=>$(i).addEventListener("input",()=>{if(!abTouched){recAb();renderChoices();sum()}}));
+$("recall").addEventListener("click",recAll);$("recsk").addEventListener("click",recSkills);$("recch").addEventListener("click",recChoices);$("recsp").addEventListener("click",recSpells);
+$("spct").addEventListener("click",e=>{const b=e.target.closest("button[data-f]");if(!b)return;SPF.t=b.dataset.f;document.querySelectorAll("#spct .sf button").forEach(x=>x.classList.toggle("on",x==b));spDraw()});
+$("spct").addEventListener("input",e=>{if(e.target.id=="spq"){SPF.q=e.target.value;spDraw()}});
+$("gd").addEventListener("change",()=>{document.body.classList.toggle("guided",$("gd").checked);gGo(GS)});
+$("gpills").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(b)gGo(+b.dataset.g)});
+$("gback").addEventListener("click",()=>{let n=GS-1;while(n>1&&skipStep(n))n--;gGo(n)});
+$("gnext").addEventListener("click",()=>{let n=GS+1;while(n<8&&skipStep(n))n++;gGo(n)});
+$("wr").addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(!b)return;const n=+b.dataset.go;if(document.body.classList.contains("guided"))gGo(n);else $("st"+n).scrollIntoView()});
+// ---- save / load character code ----
+const CODEP="DND5E-CHAR-1:";
+const b64e=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const b64d=s=>{s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";return decodeURIComponent(escape(atob(s)))};
+function charState(){return{v:1,name:$("name").value,lv:$("lv").value,sp:$("sp").value,bg:$("bg").value,cl:$("cl").value,sub:$("sub").value,al:$("al").value,abm:ABM,ab:AB.map((_,i)=>+$("a"+i).value),b2:$("b2").value,b1:$("b1").value,sk:[...document.querySelectorAll("#sk input:checked")].map(b=>b.dataset.s),kit:$("kit").selectedIndex,ch:CH,pick:[...pick],spl:$("spl").value,inv:$("inv").value,bio:$("bio").value}}
+function charCode(){const o=charState(),j=JSON.stringify(o,(k,v)=>v instanceof Set?{__s:[...v]}:v);return"# "+(o.name||"Unnamed hero")+" - "+o.sp+" "+o.cl+(o.sub&&+o.lv>=3?" ("+o.sub+")":"")+", level "+o.lv+"\n"+CODEP+b64e(j)+"~"}
+function codeUpd(){const e=$("cc");if(!e)return;const c=charCode();if(e.value!==c)e.value=c}
+function parseCode(t){t=String(t||"").trim();let j;const m=t.match(/DND5E-CHAR-1:([A-Za-z0-9_\-+\/=\s]*?)~/);if(m)j=b64d(m[1].replace(/\s+/g,""));else if(t[0]=="{")j=t;else throw new Error("That doesn't look like a character code.");
+ const o=JSON.parse(j,(k,v)=>v&&typeof v=="object"&&Array.isArray(v.__s)?new Set(v.__s):v);if(!o||o.v!==1||!CL[o.cl]||!SP[o.sp]||!BG[o.bg])throw new Error("This code is from a different version or is damaged.");return o}
+function setSel(id,v){const el=$(id);if([...el.options].some(o=>o.value==v))el.value=v}
+function loadChar(o){["name","lv","sp","bg","cl","al"].forEach(k=>{if(k=="name")$(k).value=o[k]||"";else setSel(k,o[k])});
+ bgOpts();clOpts();kitOpts();setSel("sub",o.sub);setSel("b2",o.b2);setSel("b1",o.b1);
+ ABM=o.abm=="pb"?"pb":"std";$("abm").value=ABM;abBuild(o.ab||[8,8,8,8,8,8]);abTouched=true;
+ document.querySelectorAll("#sk input").forEach(b=>{b.checked=(o.sk||[]).includes(b.dataset.s)});
+ $("kit").selectedIndex=Math.max(0,Math.min(+o.kit||0,$("kit").options.length-1));applyKit();
+ Object.keys(CH).forEach(k=>delete CH[k]);Object.keys(o.ch||{}).forEach(k=>{CH[k]=o.ch[k]});
+ spRender();pick.clear();(o.pick||[]).forEach(n=>{if(SPELLS.some(q=>q.n==n))pick.add(n)});spDraw();
+ $("spl").value=o.spl||"";$("inv").value=o.inv||"";$("bio").value=o.bio||"";
+ renderChoices();sum()}
+function doLoad(text){const m=$("ldm");try{const o=parseCode(text);loadChar(o);m.textContent="Loaded "+(o.name||"character")+".";gGo(8)}catch(e){m.textContent="Couldn't load: "+(e&&e.name=="Error"?e.message:"this code looks damaged or cut off. Ask for it again and paste all of it.")}}
+$("ldb").addEventListener("click",()=>doLoad($("ldt").value));
+$("ldf").addEventListener("change",()=>{const f=$("ldf").files[0];if(!f)return;const r=new FileReader();r.onload=()=>doLoad(r.result);r.onerror=()=>{$("ldm").textContent="Couldn't read that file."};r.readAsText(f)});
+$("cc").addEventListener("focus",()=>$("cc").select());
+$("ccc").addEventListener("click",async()=>{const t=$("cc").value;let ok=false;try{await navigator.clipboard.writeText(t);ok=true}catch(e){try{$("cc").focus();$("cc").select();ok=document.execCommand("copy")}catch(x){}}$("ccm").textContent=ok?"Copied! Now paste it to your DM.":"Couldn't copy automatically: press and hold in the box, choose Select all, then Copy."});
+$("ccd").addEventListener("click",async()=>{const t=$("cc").value,fn=($("name").value.trim()||"character").replace(/\s+/g,"_")+"_character.txt";let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
+ if(dl){try{await dl.save({filename:fn,data:t});$("ccm").textContent="Saved.";return}catch(e){if(e&&e.code=="declined")return;$("ccm").textContent="Downloads aren't available to you on this page, so please use Copy code instead.";return}}
+ if(window.claude){$("ccm").textContent="Downloads aren't available to you on this page, so please use Copy code instead.";return}
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain"}));a.download=fn;a.click();$("ccm").textContent="Saved."});
+document.body.classList.add("guided");recAb();renderChoices();spRender();sum();gGo(1);
+let LASTPDF=null,LASTNAME="character",LASTHTML="";
+const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+const loadJs=src=>new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>rej(new Error("could not load "+src));document.head.appendChild(s)});
+async function pagesToImages(){const pv=$("pv"),msg=pv.querySelector(".pvbar span");if(msg)msg.textContent="Preparing images...";
+ try{LASTHTML=pv.innerHTML;if(!window.pdfjsLib)await loadJs(PDFJS+"pdf.min.js");pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+"pdf.worker.min.js";
+ const doc=await pdfjsLib.getDocument({data:new Uint8Array(LASTPDF.slice(0))}).promise,blobs=[];
+ for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i),vp=pg.getViewport({scale:navigator.maxTouchPoints>0?3:4}),cv=document.createElement("canvas");cv.width=vp.width;cv.height=vp.height;const cx=cv.getContext("2d");cx.fillStyle="#fff";cx.fillRect(0,0,cv.width,cv.height);await pg.render({canvasContext:cx,viewport:vp}).promise;blobs.push(await new Promise(r=>cv.toBlob(r,"image/png")))}
+ const files=blobs.map((b,i)=>new File([b],LASTNAME.replace(/\s+/g,"_")+"_page"+(i+1)+".png",{type:"image/png"})),urls=blobs.map(b=>URL.createObjectURL(b));
+ let canShare=false;try{canShare=!!(navigator.canShare&&navigator.canShare({files}))}catch(e){}
+ pv.innerHTML=`<div class="pvbar"><button type="button" id="pvb2">Back to sheet</button>${canShare?'<button type="button" id="pvs">Share / save all pages</button>':""}<span>On a computer, right-click each page below and choose Save image as. On a phone, press and hold each page and choose Download image (or Share). Do this for every page.</span></div><div class="ps" style="padding:0;background:none;box-shadow:none">${urls.map(u=>`<img src="${u}" alt="Character sheet page" style="width:100%;display:block;margin:0 0 8px;background:#fff">`).join("")}</div>`;
+ pv._files=files}catch(e){pv.innerHTML=LASTHTML;const m=pv.querySelector(".pvbar span");if(m)m.textContent="Sorry, couldn't make images here ("+((e&&e.message)||e)+"). Try a screenshot of each page instead."}}
+const makeSheet=mode=>{try{const s=st(),{jsPDF}=window.jspdf,d=new jsPDF({unit:"pt",format:"letter"});
+const MAR=[92,30,30],GOLD=[122,84,40],INK=[34,34,34],MUT=[110,110,110],CARD=[250,247,240],EDGE=[205,195,180],WH=[255,255,255],FULL=["Strength","Dexterity","Constitution","Intelligence","Wisdom","Charisma"];
+let dry=0;
+const T=(t,x,y,sz,o)=>{if(dry)return;o=o||{};d.setFont("helvetica",o.b&&o.i?"bolditalic":o.b?"bold":o.i?"italic":"normal");d.setFontSize(sz);const c=o.c||INK;d.setTextColor(c[0],c[1],c[2]);d.text(String(t),x,y,o.al?{align:o.al}:undefined)};
+const wrap=(t,w,sz,b)=>{d.setFont("helvetica",b?"bold":"normal");d.setFontSize(sz);return d.splitTextToSize(String(t),w)};
+const tw=(t,sz,b)=>{d.setFont("helvetica",b?"bold":"normal");d.setFontSize(sz);return d.getTextWidth(String(t))};
+const R=(x,y,w,h,f,sc,r,lw)=>{if(dry)return;if(f)d.setFillColor(f[0],f[1],f[2]);if(sc){d.setDrawColor(sc[0],sc[1],sc[2]);d.setLineWidth(lw||.7)}const rr=r==null?3:r;if([x,y,w,h].some(q=>!isFinite(q)))throw new Error("bad rect "+[x,y,w,h]+" "+(new Error().stack.split("\n")[2]||""));d.roundedRect(x,y,w,h,rr,rr,f&&sc?"FD":f?"F":"S")};
+const L=(x1,y1,x2,y2,c,lw)=>{if(dry)return;d.setDrawColor(c[0],c[1],c[2]);d.setLineWidth(lw||.6);d.line(x1,y1,x2,y2)};
+const C=(x,y,r,fill)=>{if(dry)return;if(fill){d.setFillColor(MAR[0],MAR[1],MAR[2]);d.setDrawColor(MAR[0],MAR[1],MAR[2]);d.setLineWidth(.6);d.circle(x,y,r,"FD")}else{d.setDrawColor(MUT[0],MUT[1],MUT[2]);d.setLineWidth(.6);d.circle(x,y,r,"S")}};
+const clip=(a,n)=>{if(!n||a.length<=n)return a;const r=a.slice(0,n);r[n-1]=r[n-1].replace(/\s*\S{0,4}$/,"")+"...";return r};
+const para=(t,x,y,w,sz,o)=>{o=o||{};const ls=clip(wrap(t,w,sz,o.b),o.max);ls.forEach((q,i)=>T(q,x,y+sz+i*(sz+2.4)-1,sz,o));return y+ls.length*(sz+2.4)};
+const bul=(t,x,y,w,sz,o)=>{if(!dry){d.setFillColor(MAR[0],MAR[1],MAR[2]);d.circle(x+2.5,y+sz*.55,1.1,"F")}return para(t,x+9,y,w-9,sz,o)};
+const sub=`${s.sp} ${s.cl}${s.subt} - Level ${s.L}`;
+const head=(subtitle,r1,r2)=>{let fs=22;const nm=s.name.toUpperCase();while(tw(nm,fs,1)>290&&fs>12)fs--;if(s.blank){L(36,53,330,53,MAR,1);T("CHARACTER NAME",36,60,6,{b:1,c:GOLD})}else T(nm,36,56,fs,{b:1,c:MAR});T(subtitle,36,72,10.5,{b:1});
+ const rl=wrap(r1,250,8).concat(r2?wrap(r2,250,8):[]).slice(0,4);rl.forEach((q,i)=>T(q,576,44+i*10,8,{al:"right"}));L(36,82,576,82,MAR,1.6)};
+const card=(x,y,w,title,body)=>{const pad=9,off=title?19:0;dry++;const e=body(x+pad,y+pad+off,w-pad*2);dry--;const h=e-y+pad-2;R(x,y,w,h,CARD,EDGE,4);
+ if(title){T(title.toUpperCase(),x+pad,y+pad+7,7.5,{b:1,c:MAR});L(x+pad,y+pad+12,x+w-pad,y+pad+12,EDGE)}body(x+pad,y+pad+off,w-pad*2);return y+h};
+const traits=()=>spText(s).split("\n")[0].split(/;\s+/).map(q=>q.replace(/\.$/,"")).filter(Boolean);
+const spSet=new Set([...pick,...allSp()]),spList=SPELLS.filter(x=>spSet.has(x.n)),SRC=spSrc(),FR=[...SRC].filter(e=>e[1].free).map(e=>[e[0],e[1].free]),tagN=n=>{const i=SRC.get(n),g=i?srcTag(i.src):"";return n+(g?" ("+g+")":"")},spKick=(q,v)=>{const i=SRC.get(q.n)||{},g=srcTag(i.src);return(v?"Level "+v+" spell":"Cantrip")+(g?" - "+i.src+(i.ab?" ("+i.ab+")":", always prepared"):"")},spDesc=q=>{const i=SRC.get(q.n)||{};return q.d+(i.free?" Free: cast it without a spell slot "+(i.free>1?i.free+" times":"once")+" per long rest.":"")};
+const gc=getC(),ci=gc?AB.indexOf(gc[0]):-1,smod=gc?s.m[ci]:0;
+const cs=SPEC.filter(x=>!x.quiet&&!x.spell),csv=x=>x.kind=="sel"?lab(x,CH[x.id]):([...CH[x.id]].map(v=>lab(x,v)).join(", ")||"none chosen");
+const skv=n=>{const k=s.skills.find(q=>q.n==n);return k?k.v:s.pp-10};
+const TY={B:"bludgeoning",P:"piercing",S:"slashing"},mast=WM[s.cl]?atkW().map(n=>WPN.find(x=>x.n==n)).filter(x=>{if(!x)return false;const ms=x.p.split(";")[1];return ms&&wprof(s.cl,x)&&(!cv("wm")||cv("wm").has(x.n))}).map(x=>{const ms=x.p.split(";")[1],mo=x.k=="R"?s.m[1]:x.k=="F"?Math.max(s.m[0],s.m[1]):s.m[0];return[x.n+": "+ms,MD[ms].replace("@MOD@",Math.max(0,mo)).replace("@TYPE@",TY[x.t]).replace("@DC@",8+mo+s.pb)]}):[];
+const gi=gearInfo(),exInv=$("inv").value.split("\n").map(q=>q.trim()).filter(Boolean);
+const slotInfo=(()=>{if(!gc)return null;const sl=[...gc[4].matchAll(/(\d+)x L(\d)/g)].map(m=>[+m[2],+m[1]]),pact=/short rest/i.test(gc[4]);return{sl,pact,txt:pact?"Your Warlock slots all share one level and come back after a SHORT rest (about an hour), so you can spend them every fight. Tick a circle each time you cast a leveled spell.":"Spell slots are the fuel for leveled spells. Casting one uses up a slot of that spell's level or higher; tick a circle each time you spend one. You get every slot back after a LONG rest (8 hours)."}})();
+const SLOTX="Cantrips cost nothing and can be cast as often as you like. You can only cast spells from your prepared list. Using a higher-level slot on a spell makes some spells stronger (look for 'at higher levels' in the spell's full text).";
+const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const printHTML=(why)=>{const pc=(t,b)=>`<div class="pc"><h4>${esc(t)}</h4>${b}</div>`,fc=(n,k,p)=>`<div class="fc"><b>${esc(n)}</b>${k?`<small>${esc(k)}</small>`:""}${p?`<p>${esc(p)}</p>`:""}</div>`,first=t=>{const m=String(t).match(/^.{20,170}?[.!?](\s|$)/);return m?m[0].trim():String(t).slice(0,170)};
+const sk=s.skills.map(k=>`<div class="sr"><span><i class="dot${k.p?" f":""}"></i>${esc(k.n)} (${k.a})${k.e?'<span class="exp">EXP</span>':""}</span><b>${sg(k.v)}</b></div>`).join("");
+const sv=AB.map((a,i)=>{const p=s.saves.includes(a);return `<div class="sr"><span><i class="dot${p?" f":""}"></i>${FULL[i]}</span><b>${sg(s.m[i]+(p?s.pb:0))}</b></div>`}).join("");
+const ft=FT(s).map(f=>{const i=f.indexOf(":");return {n:f.slice(0,i),d:f.slice(i+2)}});
+const casting=(gc||spList.length)?pc("Spellcasting",(gc?`<p><b>${gc[0]}: Spell attack ${sg(smod+s.pb)} - Save DC ${8+smod+s.pb}</b></p><p>${esc(gc[4])}</p>`:"")+[0,1,2,3].map(v=>{const n=spList.filter(q=>q.v==v).map(q=>tagN(q.n));return n.length?`<p><span class="k">${v?"Level "+v+" spells":"Cantrips"}</span><br>${esc(n.join(", "))}</p>`:""}).join("")+srcNotes(s,gc).map(q=>`<p style="color:#666">${esc(q)}</p>`).join("")):"";
+const page1=`<div class="pg"><div class="ph"><div><h1>${s.blank?'<span style="display:inline-block;width:3.2in;max-width:100%;border-bottom:1.5px solid #5c1e1e;height:24px"></span><small style="display:block;font-size:8px;color:#7a5428;font-weight:700;letter-spacing:.06em">CHARACTER NAME</small>':esc(s.name.toUpperCase())}</h1><p><b>${esc(sub)}</b></p></div><div class="pr">Background: ${esc(s.bg)} - Origin Feat: ${esc(s.feats.join(", "))}<br>Alignment: ${esc(s.al)} - XP: ______</div></div>
+<div class="stats">${[["ARMOR CLASS",s.ac],["INITIATIVE",sg(s.init)],["SPEED",s.spd+" ft"],["HIT POINTS",s.hp+" / "+s.hp],["HIT DICE",s.L+"d"+s.hd]].map(b=>`<div><b>${esc(b[1])}</b><small>${b[0]}</small></div>`).join("")}</div>
+<div class="cols"><div>${pc("Ability Scores",`<div class="ab">${AB.map((a,i)=>`<div><small>${a}</small><b>${s.f[i]}</b><small>${sg(s.m[i])}</small></div>`).join("")}</div>`)}${pc("Proficiencies & Skills",`<p><b>Proficiency Bonus: +${s.pb}</b></p>${sk}`)}${pc("Saving Throws",sv)}</div>
+<div>${pc("Actions & Combat",`<p><b>Armor: ${esc($("ar").value)}${s.shield?" + shield":""} (AC ${s.ac})</b></p>`+(s.atk.length?s.atk:["No weapon attacks listed."]).map(a=>`<p>${esc(a)}</p>`).join("")+s.warn.map(a=>`<p><i>! ${esc(a)}</i></p>`).join(""))}${pc("Species & Origin Traits","<ul>"+traits().map(q=>`<li>${esc(q)}</li>`).join("")+s.feats.map(f=>`<li>${esc(f)} (origin feat)</li>`).join("")+"</ul>")}${pc(s.cl+s.subt+" "+s.L,ft.map(f=>`<p><b>${esc(f.n)}</b><br>${esc(first(f.d))}</p>`).join(""))}</div>
+<div>${casting}${cs.length?pc("Choices","<ul>"+cs.map(q=>`<li>${esc(q.label.replace(/^(Extra feat from Human|Feat from your [^-]*) - /,"")+": "+csv(q))}</li>`).join("")+"</ul>"):""}${$("bio").value.trim()?pc("Backstory",`<p>${esc($("bio").value.trim())}</p>`):""}${pc("Passive Scores",`<p>Perception <b>${s.pp}</b> - Investigation <b>${10+skv("Investigation")}</b> - Insight <b>${10+skv("Insight")}</b></p>`)}${pc("Inventory",`<p><span class="k">From your ${esc(s.cl)} kit</span><br>${esc(gi.kit.join(", "))}</p><p><span class="k">From your ${esc(s.bg)} background</span><br>${esc(gi.bg.join(", "))}</p>${exInv.length?`<p><span class="k">Other</span><br>${esc(exInv.join(", "))}</p>`:""}<p>CP ___ SP ___ EP ___ GP ${gi.gp||"___"} PP ___</p>`)}${pc("Training & Languages",profLines().map(p=>`<p><span class="k">${esc(p[0])}</span><br>${esc(p[1])}</p>`).join(""))}</div></div></div>`;
+const feats=[];ft.forEach(f=>feats.push(fc(f.n,s.cl+" feature",f.d)));
+const sp2=[];spCards(s).forEach(c=>sp2.push(fc(c[0],c[1],c[2])));const rest=spText(s).split("\n").slice(1).join(" ").trim();if(rest)sp2.push(fc("Species choices",s.sp,rest));
+s.feats.forEach(f=>sp2.push(fc(f,"Origin feat",FD[f]||"")));SPEC.filter(x=>!x.quiet&&!x.spell&&x.id!="wm").forEach(x=>(x.kind=="sel"?[CH[x.id]]:[...CH[x.id]]).forEach(v=>{const o=x.opts.find(q=>q[0]==v);if(o&&o[2])sp2.push(fc(o[1],x.label.replace(/^(Extra feat from Human|Feat from your [^-]*) - /,""),o[2]))}));
+const page2=`<div class="pg pgb"><div class="ph"><div><h1>${s.blank?'<span style="display:inline-block;width:3.2in;max-width:100%;border-bottom:1.5px solid #5c1e1e;height:24px"></span><small style="display:block;font-size:8px;color:#7a5428;font-weight:700;letter-spacing:.06em">CHARACTER NAME</small>':esc(s.name.toUpperCase())}</h1><p><b>Features & Abilities Reference</b></p></div><div class="pr">Proficiency Bonus: +${s.pb} - Hit Dice: ${s.L}d${s.hd}<br>Saves: ${esc(s.saves.join(", "))}</div></div><div class="bn">Class & subclass features - ${esc(s.cl+s.subt)}</div><div class="two">${feats.join("")}</div>${mast.length?`<div class="bn">Weapon mastery</div><div class="two">${fc("How weapon mastery works","Rules",MHOW)}${mast.map(q=>fc(q[0],"Weapon mastery",q[1])).join("")}</div>`:""}<div class="bn">Species, origin & chosen options</div><div class="two">${sp2.join("")}</div></div>`;
+const slotsHTML=slotInfo?`<div class="slotrow"><div class="pc"><h4>Spell slots (${slotInfo.pact?"short":"long"} rest)</h4>${slotInfo.sl.length?slotInfo.sl.map(q=>`<div class="sr"><span><b>${ordn(q[0])} level</b></span><span>${'<i class="dot big"></i>'.repeat(q[1])}</span></div>`).join(""):"<p>No spell slots yet at this level.</p>"}${FR.length?`<p class="k" style="margin-top:4px">Free casts (long rest)</p>`+FR.map(q=>`<div class="sr"><span>${esc(q[0])}</span><span>${'<i class="dot big"></i>'.repeat(q[1])}</span></div>`).join(""):""}<p style="margin-top:4px"><b>Spell attack ${sg(smod+s.pb)} - Save DC ${8+smod+s.pb}</b></p></div><div class="pc"><h4>How spell slots work</h4><p>${esc(slotInfo.txt+" "+SLOTX)}</p></div></div>`:"";
+let page3="";if(spList.length||gc){page3=`<div class="pg pgb"><div class="ph"><div><h1>${s.blank?'<span style="display:inline-block;width:3.2in;max-width:100%;border-bottom:1.5px solid #5c1e1e;height:24px"></span><small style="display:block;font-size:8px;color:#7a5428;font-weight:700;letter-spacing:.06em">CHARACTER NAME</small>':esc(s.name.toUpperCase())}</h1><p><b>Spells Reference</b></p></div><div class="pr">${gc?esc(gc[0])+" spellcasting: Attack "+sg(smod+s.pb)+" - Save DC "+(8+smod+s.pb)+"<br>"+esc(gc[4]):""}</div></div>`+slotsHTML+[0,1,2,3].map(v=>{const n=spList.filter(q=>q.v==v);return n.length?`<div class="sh">${v?["","1st","2nd","3rd"][v]+"-level spells":"Cantrips"}</div><div class="two">${n.map(q=>fc(q.n,spKick(q,v),spDesc(q))).join("")}</div>`:""}).join("")+`</div>`}
+const notes=($("spl").value+"\n"+$("inv").value).trim(),bio=$("bio").value.trim();const page4=(notes||bio)?`<div class="pg pgb"><div class="bn">Notes & backstory</div>${notes?pc("Notes & special items",`<p style="white-space:pre-wrap">${esc(notes)}</p>`):""}${bio?pc("Backstory",`<p style="white-space:pre-wrap">${esc(bio)}</p>`):""}</div>`:"";
+$("pv").innerHTML=`<div class="pvbar"><button type="button" id="pvc">Close</button>${window.claude?"":'<button type="button" id="pvp">Print / Save as PDF</button>'}<button type="button" id="pvi">Save pages as images</button><span>${why||(window.claude?"To keep every page, tap Save pages as images, then save each image (right-click on a computer, press and hold on a phone). Ctrl+P only prints the part of the page you can see while it is shown inside Claude, so it cuts the sheet off.":"To keep a copy, press Ctrl+P (Cmd+P on Mac) and choose Save as PDF, or tap Save pages as images.")}</span></div><div class="ps">${page1}${page2}${page3}${page4}</div>`;$("pv").hidden=false;try{$("pv").scrollTop=0}catch(e){}};
+// ---------- page 1 ----------
+const P1=lv=>{const X=[36,220,404],CW=172,G=9,y=[140,140,140],add=(c,t,b)=>{y[c]=card(X[c],y[c],CW,t,b)+G};
+ add(0,"Ability Scores",(x,yy,w)=>{const bw=(w-8)/3;AB.forEach((a,i)=>{const bx=x+(i%3)*(bw+4),by=yy+Math.floor(i/3)*54;R(bx,by,bw,50,WH,EDGE,3);T(a,bx+bw/2,by+11,7,{b:1,c:MUT,al:"center"});T(s.f[i],bx+bw/2,by+32,18,{b:1,al:"center"});T(sg(s.m[i]),bx+bw/2,by+44,8,{b:1,c:MAR,al:"center"})});return yy+104});
+ add(0,"Proficiencies & Skills",(x,yy,w)=>{T("Proficiency Bonus: +"+s.pb,x,yy+8,8,{b:1});yy+=15;s.skills.forEach(k=>{C(x+3.5,yy+4,3,k.p);const nm=k.n+" ("+k.a+")";T(nm,x+11,yy+7,7.4);if(k.e){const bx=x+11+tw(nm,7.4)+4;R(bx,yy+1,17,8,MAR,null,2);T("EXP",bx+8.5,yy+7,5.3,{b:1,c:WH,al:"center"})}T(sg(k.v),x+w,yy+7,7.4,{b:1,al:"right"});L(x,yy+10.5,x+w,yy+10.5,[230,224,212],.4);yy+=11.4});
+  return para("Filled dot = proficient. EXP = Expertise (double proficiency).",x,yy+2,w,6,{i:1,c:MUT})});
+ add(1,"Actions & Combat",(x,yy,w)=>{yy=para("Armor: "+$("ar").value+(s.shield?" + shield":"")+" (AC "+s.ac+")",x,yy,w,7.6,{b:1})+3;(s.atk.length?s.atk:["No weapon attacks listed."]).forEach(a=>{yy=para(a,x,yy,w,7.6,{max:3})+3});s.warn.forEach(a=>{yy=para("! "+a,x,yy,w,7,{i:1,c:MAR,max:3})+2});return yy});
+ add(1,"Species & Origin Traits",(x,yy,w)=>{traits().forEach(q=>{yy=bul(q,x,yy,w,7.4,{max:lv?2:3})+2.5});s.feats.forEach(f=>{yy=bul(f+" (origin feat)",x,yy,w,7.4,{max:2})+2.5});return yy});
+ add(1,(s.cl+s.subt+" "+s.L),(x,yy,w)=>{FT(s).forEach(f=>{const i=f.indexOf(":"),nm=f.slice(0,i),ds=f.slice(i+2);if(lv>1){yy=bul(nm,x,yy,w,7.6,{b:1})+1.5}else{yy=para(nm,x,yy,w,7.8,{b:1,c:MAR});yy=para(ds,x,yy,w,7.2,{max:lv?1:2})+3}});return yy});
+ if(gc||spList.length)add(2,"Spellcasting",(x,yy,w)=>{if(gc){yy=para(gc[0]+": Spell attack "+sg(smod+s.pb)+" - Save DC "+(8+smod+s.pb),x,yy,w,7.8,{b:1});yy=para(gc[4],x,yy,w,7.2,{c:MUT})+3}
+  [0,1,2,3].forEach(v=>{const n=spList.filter(q=>q.v==v).map(q=>tagN(q.n));if(n.length){yy=para(v?"Level "+v+" spells:":"Cantrips:",x,yy,w,6.8,{b:1,c:GOLD});yy=para(n.join(", "),x,yy,w,7.4)+3}});srcNotes(s,gc).forEach(q=>{yy=para(q,x,yy,w,6.6,{c:MUT})+2});return yy});
+ if(cs.length)add(2,"Choices",(x,yy,w)=>{cs.forEach(q=>{yy=bul(q.label.replace(/^(Extra feat from Human|Feat from your [^-]*) - /,"")+": "+csv(q),x,yy,w,7,{max:lv?2:3})+2.5});return yy});
+ if($("bio").value.trim())add(2,"Backstory",(x,yy,w)=>para($("bio").value.trim(),x,yy,w,7.4,{max:lv>1?3:lv?4:6}));
+ const z=y,ad=(c,t,b)=>add(c,t,b);
+ ad(0,"Saving Throws",(x,yy,w)=>{AB.forEach((a,i)=>{const p=s.saves.includes(a);C(x+3.5,yy+4,3,p);T(FULL[i],x+11,yy+7,7.6);T(sg(s.m[i]+(p?s.pb:0)),x+w,yy+7,7.6,{b:1,al:"right"});L(x,yy+10.5,x+w,yy+10.5,[230,224,212],.4);yy+=11.4});return para("Filled dot = proficient.",x,yy+1,w,6,{i:1,c:MUT})});
+ ad(y[1]<=y[2]?1:2,"Training & Languages",(x,yy,w)=>{profLines().forEach(p=>{yy=para(p[0]+":",x,yy,w,6.6,{b:1,c:GOLD});yy=para(p[1],x,yy,w,7.2)+2});return yy});
+ ad(1,"Passive Scores",(x,yy,w)=>{const bw=(w-8)/3;[["PERCEPTION",s.pp],["INVESTIGATION",10+skv("Investigation")],["INSIGHT",10+skv("Insight")]].forEach((p,i)=>{const bx=x+i*(bw+4);R(bx,yy,bw,38,WH,EDGE,3);T(p[1],bx+bw/2,yy+20,15,{b:1,al:"center"});T(p[0],bx+bw/2,yy+31,5.2,{b:1,c:MUT,al:"center"})});return para("Passive score = 10 + skill modifier.",x,yy+42,w,6,{i:1,c:MUT})});
+ ad(2,"Inventory",(x,yy,w)=>{yy=para("From your "+s.cl+" kit:",x,yy,w,6.6,{b:1,c:GOLD});yy=para(gi.kit.join(", "),x,yy,w,7.2)+3;yy=para("From your "+s.bg+" background:",x,yy,w,6.6,{b:1,c:GOLD});yy=para(gi.bg.join(", "),x,yy,w,7.2)+3;if(exInv.length){yy=para("Other:",x,yy,w,6.6,{b:1,c:GOLD});yy=para(exInv.join(", "),x,yy,w,7.2,{max:lv>1?3:5})+3}yy+=2;const cw=(w-16)/5;["CP","SP","EP","GP","PP"].forEach((c,i)=>{const bx=x+i*(cw+4);R(bx,yy,cw,16,WH,MAR,2);T(c=="GP"&&gi.gp?"GP "+gi.gp:c,bx+cw/2,yy+10.5,6,{b:1,c:MAR,al:"center"})});return yy+17});
+ return Math.max(...z)};
+dry++;let lv=0,bt=P1(0);while(bt>762&&lv<2){lv++;bt=P1(lv)}dry--;
+head(sub,"Background: "+s.bg+" - Origin Feat: "+s.feats.join(", "),"Alignment: "+s.al+" - XP: ______");
+[["ARMOR CLASS",s.ac],["INITIATIVE",sg(s.init)],["SPEED",s.spd+" ft"],["HIT POINTS",s.hp+" / "+s.hp],["HIT DICE",s.L+"d"+s.hd]].forEach((b,i)=>{const bw=(540-32)/5,x=36+i*(bw+8);R(x,92,bw,38,CARD,MAR,4,1);T(b[1],x+bw/2,111,15,{b:1,al:"center"});T(b[0],x+bw/2,123,6,{b:1,c:MUT,al:"center"})});
+P1(lv);
+// ---------- flowing reference pages ----------
+let pg={sub:"Features & Abilities Reference",r1:"Proficiency Bonus: +"+s.pb+" - Hit Dice: "+s.L+"d"+s.hd,r2:"Saves: "+s.saves.join(", ")};
+const FW=264,FX=[36,312],TOP=98,BOT=752;let fy=[TOP,TOP];
+const newPage=()=>{d.addPage();head(pg.sub,pg.r1,pg.r2);fy=[TOP,TOP]};
+const startPage=p=>{pg=p;newPage()};
+const sync=need=>{let m=Math.max(fy[0],fy[1]);if(m+need>BOT){newPage();m=TOP}fy=[m,m]};
+const banner=t=>{sync(70);const m=fy[0];R(36,m,540,16,MAR,null,2);T(t.toUpperCase(),44,m+11.3,8.5,{b:1,c:WH});fy=[m+22,m+22]};
+const subhead=t=>{sync(60);const m=fy[0];T(t.toUpperCase(),36,m+8,7.2,{b:1,c:GOLD});L(36,m+11,576,m+11,EDGE);fy=[m+16,m+16]};
+const fcard=(name,kick,paras)=>{const pad=9,w=FW,body=(x,y,w2)=>{y=para(name,x,y,w2,9.6,{b:1,c:MAR})+1;if(kick){y=para(kick.toUpperCase(),x,y,w2,6.4,{b:1,c:GOLD})+2}paras.filter(Boolean).forEach(t=>{y=para(t,x,y,w2,7.8)+3});return y};
+ dry++;const e=body(0,pad,w-pad*2-3);dry--;const h=e+pad-5;let c=fy[0]<=fy[1]?0:1;if(fy[c]+h>BOT){if(fy[1-c]+h<=BOT)c=1-c;else{newPage();c=0}}
+ const x=FX[c],y=fy[c];R(x,y,w,h,CARD,EDGE,3);if(!dry){d.setFillColor(MAR[0],MAR[1],MAR[2]);d.rect(x,y,2.6,h,"F")}body(x+pad+3,y+pad,w-pad*2-3);fy[c]=y+h+7};
+const longText=(title,text)=>{let ls=wrap(text,520,7.8);sync(60);while(ls.length){let m=Math.max(fy[0],fy[1]);if(m+60>BOT){newPage();m=TOP}const n=Math.max(1,Math.min(ls.length,Math.floor((BOT-m-34)/10.2)));const part=ls.splice(0,n);R(36,m,540,part.length*10.2+30,CARD,EDGE,4);T(title.toUpperCase(),45,m+16,7.5,{b:1,c:MAR});part.forEach((q,i)=>T(q,45,m+30+i*10.2,7.8));fy=[m+part.length*10.2+38,m+part.length*10.2+38]}};
+newPage();
+banner("Class & subclass features - "+s.cl+s.subt);
+FT(s).forEach(f=>{const i=f.indexOf(":");fcard(f.slice(0,i),s.cl+" feature",[f.slice(i+2)])});
+if(mast.length){banner("Weapon mastery");fcard("How weapon mastery works","Rules",[MHOW]);mast.forEach(q=>fcard(q[0],"Weapon mastery",[q[1]]))}
+banner("Species, origin & chosen options");
+{spCards(s).forEach(c=>fcard(c[0],c[1],[c[2]]));const rest=spText(s).split("\n").slice(1).join(" ").trim();if(rest)fcard("Species choices",s.sp,[rest]);
+ s.feats.forEach(f=>fcard(f,"Origin feat",[FD[f]||""]));
+ SPEC.filter(x=>!x.quiet&&!x.spell&&x.id!="wm").forEach(x=>(x.kind=="sel"?[CH[x.id]]:[...CH[x.id]]).forEach(v=>{const o=x.opts.find(q=>q[0]==v);if(o&&o[2])fcard(o[1],x.label.replace(/^(Extra feat from Human|Feat from your [^-]*) - /,""),[o[2]])}))}
+if(spList.length||gc){startPage({sub:"Spells Reference",r1:gc?gc[0]+" spellcasting: Attack "+sg(smod+s.pb)+" - Save DC "+(8+smod+s.pb):"",r2:gc?gc[4]:""});
+ if(gc){const sl=slotInfo.sl,lines=wrap(slotInfo.txt+" "+SLOTX,FW-18,7.6),fh=FR.length?14+FR.length*13:0,h2=Math.max(22+lines.length*10+8,22+Math.max(sl.length,1)*15+24+fh);
+ R(36,TOP,FW,h2,CARD,EDGE,4);T("SPELL SLOTS ("+(slotInfo.pact?"SHORT":"LONG")+" REST)",45,TOP+14,7.5,{b:1,c:MAR});L(45,TOP+18,36+FW-9,TOP+18,EDGE);
+ if(!sl.length)T("No spell slots yet at this level.",45,TOP+34,8,{i:1});
+ sl.forEach((q,i)=>{const yy=TOP+32+i*15;T(ordn(q[0])+" level",45,yy+3,8,{b:1});for(let k=0;k<q[1];k++)C(118+k*15,yy,5,false)});
+ if(FR.length){let yy=TOP+32+Math.max(sl.length,1)*15+2;T("FREE CASTS (LONG REST)",45,yy,6.4,{b:1,c:GOLD});yy+=12;FR.forEach(q=>{T(q[0],45,yy+3,7.6);for(let k=0;k<q[1];k++)C(36+FW-16-k*13,yy,4.5,false);yy+=13})}
+ T("Spell attack "+sg(smod+s.pb)+" - Save DC "+(8+smod+s.pb),45,TOP+h2-8,7.6,{b:1,c:MAR});
+ R(FX[1],TOP,FW,h2,CARD,EDGE,4);T("HOW SPELL SLOTS WORK",FX[1]+9,TOP+14,7.5,{b:1,c:MAR});L(FX[1]+9,TOP+18,FX[1]+FW-9,TOP+18,EDGE);lines.forEach((q,i)=>T(q,FX[1]+9,TOP+30+i*10,7.6));
+ fy=[TOP+h2+10,TOP+h2+10]}
+ banner("Spells");[0,1,2,3].forEach(v=>{const n=spList.filter(q=>q.v==v);if(!n.length)return;subhead(v?["","1st","2nd","3rd"][v]+"-level spells":"Cantrips");n.forEach(q=>fcard(q.n,spKick(q,v),[spDesc(q)]))})}
+const notes=($("spl").value+"\n"+$("inv").value).trim(),bio=$("bio").value.trim();
+if(notes||bio){if(!spList.length&&!gc){}banner("Notes & backstory");if(notes)longText("Notes & special items",notes);if(bio)longText("Backstory",bio)}
+{const n=d.internal.getNumberOfPages();for(let i=1;i<=n;i++){d.setPage(i);d.setFont("helvetica","normal");d.setFontSize(7);d.setTextColor(MUT[0],MUT[1],MUT[2]);d.text((s.blank?"":s.name+" - ")+sub,306,778,{align:"center"})}}
+const fn=(s.blank?"":s.name.replace(/\s+/g,"_")+"_")+"Character_Sheet.pdf";
+LASTPDF=d.output("arraybuffer");LASTNAME=s.name;
+if(mode=="print"){printHTML();return}
+(async()=>{let dl=null;const emb=!!window.claude;try{dl=emb&&await window.claude.use("downloads")}catch(e){}
+const fb="Direct PDF download isn't available to you on this page, so here is your sheet. On a phone, tap Save pages as images, then press and hold each image to save it. On a computer, press Ctrl+P (Cmd+P on Mac) and choose Save as PDF.";
+if(dl){try{await dl.save({filename:fn,data:d.output("blob")})}catch(e){if(!e||e.code!="declined")printHTML(fb)}}else if(emb)printHTML(fb);else d.save(fn)})()}catch(e){alert("PDF export failed: "+e.message)}};
+$("pdf").onclick=()=>makeSheet("pdf");$("pvb").onclick=()=>makeSheet("print");
+$("pv").addEventListener("click",e=>{if(e.target.id=="pvc")$("pv").hidden=true;if(e.target.id=="pvp"){try{window.print()}catch(x){}}if(e.target.id=="pvi")pagesToImages();if(e.target.id=="pvb2"){$("pv").innerHTML=LASTHTML}if(e.target.id=="pvs"){try{navigator.share({files:$("pv")._files,title:LASTNAME})}catch(x){}}});
+/* ---- DM party tracker ---- */
+const PKEY="dnd-party-v1",PCOND=["Blinded","Charmed","Deafened","Frightened","Grappled","Incapacitated","Invisible","Paralyzed","Petrified","Poisoned","Prone","Restrained","Stunned","Unconscious"];
+const pesc=t=>String(t==null?"":t).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+let PARTY=[];
+const pload=()=>{try{const r=localStorage.getItem(PKEY);if(r){const a=JSON.parse(r,(k,v)=>v&&typeof v=="object"&&Array.isArray(v.__s)?new Set(v.__s):v);if(Array.isArray(a))PARTY=a.filter(e=>e&&e.o&&e.snap)}}catch(e){}};
+const psave=()=>{try{localStorage.setItem(PKEY,JSON.stringify(PARTY,(k,v)=>v instanceof Set?{__s:[...v]}:v))}catch(e){}};
+const pser=o=>JSON.stringify(o,(k,v)=>v instanceof Set?{__s:[...v]}:v);
+const pdes=t=>JSON.parse(t,(k,v)=>v&&typeof v=="object"&&Array.isArray(v.__s)?new Set(v.__s):v);
+const sgn=n=>(n>=0?"+":"")+n;
+function pSnap(o){/* load into the hidden creator form, read stats, caller restores */
+ loadChar(o);const s=st(),gc=getC(),sm=gc?s.m[AB.indexOf(gc[0])]:0,sk=n=>s.skills.find(x=>x.n==n).v;
+ return{name:s.name,sp:s.sp,cl:s.cl,sub:s.L>=3?s.sub:"",L:s.L,hp:s.hp,ac:s.ac,spd:s.spd,init:s.init,pp:s.pp,pi:10+sk("Investigation"),pn:10+sk("Insight"),pb:s.pb,f:s.f,saves:s.saves,
+  dc:gc?8+sm+s.pb:null,sat:gc?sm+s.pb:null,sab:gc?gc[0]:"",slots:gc?gc[4]:"",feats:s.feats,spells:[...pick].slice(0,40),skills:s.skills.filter(x=>x.p).map(x=>x.n)}}
+function pAdd(objs){/* objs: parsed characters; returns [added,updated] */
+ const keep=pser(charState());let a=0,u=0;
+ try{objs.forEach(o=>{const sn=pSnap(o),i=PARTY.findIndex(e=>e.snap.name.toLowerCase()==sn.name.toLowerCase());
+  if(i>=0){const e=PARTY[i];e.o=o;const oldMax=e.snap.hp;e.snap=sn;if(e.hp>sn.hp||e.hp==oldMax)e.hp=Math.min(e.hp,sn.hp);u++}
+  else{PARTY.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),o,snap:sn,hp:sn.hp,thp:0,cond:[],exh:0,conc:false,insp:false,ds:[0,0],roll:"",note:""});a++}})}
+ finally{try{loadChar(pdes(keep))}catch(e){}}
+ psave();return[a,u]}
+function pIngest(text){const m=$("pmsg");text=String(text||"");const objs=[],bad=[];
+ const pm=text.match(/DND5E-PARTY-1:([A-Za-z0-9_\-+\/=\s]*?)~/);
+ if(pm){try{const d=pdes(b64d(pm[1].replace(/\s+/g,"")));d.forEach(x=>{objs.push(x.o)});pAdd(d.map(x=>x.o));
+   /* restore tracker state */d.forEach(x=>{const e=PARTY.find(q=>q.snap.name.toLowerCase()==String(x.o.name||"Unnamed Hero").toLowerCase());if(e)Object.assign(e,{hp:x.hp,thp:x.thp,cond:x.cond,exh:x.exh,conc:x.conc,insp:x.insp,ds:x.ds,roll:x.roll,note:x.note})});psave();pRender();m.textContent="Restored "+d.length+" characters from the backup.";return}catch(e){m.textContent="That backup looks damaged.";return}}
+ const found=text.match(/DND5E-CHAR-1:[A-Za-z0-9_\-+\/=\s]*?~/g)||[];
+ found.forEach(c=>{try{objs.push(parseCode(c))}catch(e){bad.push(1)}});
+ if(!found.length&&text.trim()[0]=="{"){try{objs.push(parseCode(text))}catch(e){bad.push(1)}}
+ if(!objs.length){m.textContent=bad.length?"Couldn't read that code. Ask the player to send it again, all of it.":"No character codes found in that text.";return}
+ let r;try{r=pAdd(objs)}catch(e){m.textContent="Couldn't add: "+e.message;return}
+ pRender();m.textContent=(r[0]?"Added "+r[0]:"")+(r[0]&&r[1]?", ":"")+(r[1]?"updated "+r[1]+" (tracker kept)":"")+(bad.length?". "+bad.length+" code(s) unreadable.":".")}
+function pBackup(){return"# D&D party backup ("+PARTY.length+" characters)\nDND5E-PARTY-1:"+b64e(pser(PARTY.map(e=>({o:e.o,hp:e.hp,thp:e.thp,cond:e.cond,exh:e.exh,conc:e.conc,insp:e.insp,ds:e.ds,roll:e.roll,note:e.note}))))+"~"}
+const pfind=id=>PARTY.find(e=>e.id==id);
+function pRender(){const el=$("pbody");if(!PARTY.length){el.innerHTML='<p class="hint">No characters yet. Paste codes above to build your party overview.</p>';return}
+ const rows=PARTY.map(e=>{const n=e.snap;return`<tr><td><b>${pesc(n.name)}</b></td><td>${pesc(n.sp)} ${pesc(n.cl)}${n.sub?" ("+pesc(n.sub)+")":""}</td><td>${n.L}</td><td>${e.hp}${e.thp?"+"+e.thp:""}/${n.hp}</td><td>${n.ac}</td><td>${sgn(n.init)}</td><td>${n.spd}</td><td>${n.pp}</td><td>${n.pi}</td><td>${n.pn}</td><td>${n.dc==null?"-":n.dc}</td></tr>`}).join("");
+ const cards=PARTY.map(e=>{const n=e.snap,pc=Math.max(0,Math.min(100,e.hp/n.hp*100)),cl=pc<=25?"l":pc<=50?"m":"";
+  return`<div class="pcard${e.hp<=0?" dn":""}" data-id="${e.id}"><h3>${pesc(n.name)}</h3><div class="sub">${pesc(n.sp)} ${pesc(n.cl)}${n.sub?" ("+pesc(n.sub)+")":""}, level ${n.L}</div>
+  <div class="hpb"><i class="${cl}" style="width:${pc}%"></i></div>
+  <div class="hpr"><span class="big">${e.hp}</span><span>/ ${n.hp} HP${e.thp?" + "+e.thp+" temp":""}</span></div>
+  <div class="hpr" style="margin-top:6px"><input type="number" min="0" inputmode="numeric" value="" placeholder="amt" data-a="amt" aria-label="Amount"><button type="button" data-a="dmg">Damage</button><button type="button" data-a="heal" class="sec">Heal</button><button type="button" data-a="thp" class="sec">Set temp HP</button></div>
+  <div class="pst"><div><b>${n.ac}</b>AC</div><div><b>${sgn(n.init)}</b>Init</div><div><b>${n.spd}</b>Speed</div><div><b>${n.pp}</b>Passive Perc.</div><div><b>${n.pi}</b>Passive Inv.</div><div><b>${n.pn}</b>Passive Ins.</div><div><b>${n.dc==null?"-":n.dc}</b>Spell DC</div><div><b>${n.sat==null?"-":sgn(n.sat)}</b>Spell atk</div></div>
+  <div class="cd">${PCOND.map(c=>`<button type="button" data-a="cond" data-c="${c}" class="${e.cond.includes(c)?"on":""}">${c}</button>`).join("")}</div>
+  <div class="ds"><label>Exhaustion <input type="number" min="0" max="6" value="${e.exh}" data-a="exh" style="width:3.2em"></label><label><input type="checkbox" data-a="conc" ${e.conc?"checked":""}> Concentrating</label><label><input type="checkbox" data-a="insp" ${e.insp?"checked":""}> Heroic Inspiration</label></div>
+  ${e.hp<=0?`<div class="ds" style="margin-top:4px"><b style="font-size:.8em">Death saves</b> ${[0,1,2].map(i=>`<label><input type="checkbox" data-a="dsok" data-i="${i}" ${e.ds[0]>i?"checked":""}> ok</label>`).join("")} ${[0,1,2].map(i=>`<label><input type="checkbox" data-a="dsno" data-i="${i}" ${e.ds[1]>i?"checked":""}> fail</label>`).join("")}</div>`:""}
+  <label>Initiative roll <input type="number" inputmode="numeric" value="${pesc(e.roll)}" data-a="roll" style="width:5em"></label>
+  <label>DM notes</label><textarea data-a="note" placeholder="Private notes">${pesc(e.note)}</textarea>
+  <details style="margin-top:6px"><summary class="hint" style="cursor:pointer">Details</summary><p class="hint">Scores: ${AB.map((a,i)=>a+" "+n.f[i]).join(", ")}<br>Saves: ${pesc(n.saves.join(", "))}<br>Skills: ${pesc(n.skills.join(", "))}<br>Feats: ${pesc(n.feats.join(", "))}${n.slots?"<br>"+pesc(n.slots):""}${n.spells.length?"<br>Spells: "+pesc(n.spells.join(", ")):""}</p></details>
+  <div class="row2"><button type="button" data-a="pdf">Download PDF</button><button type="button" data-a="sheet" class="sec">View sheet</button><button type="button" data-a="edit" class="sec">Open in creator</button><button type="button" data-a="rm" class="sec">Remove</button></div></div>`}).join("");
+ el.innerHTML=`<div class="bar"><button type="button" id="prest" class="sec">Long rest (all)</button><button type="button" id="psort" class="sec">Sort by initiative roll</button><button type="button" id="pcopy" class="sec">Copy party backup</button><button type="button" id="pclr" class="sec">Remove everyone</button><span id="pm2" class="pm-msg"></span></div>
+ <div class="ptw"><table class="pt"><thead><tr><th>Name</th><th>Class</th><th>Lv</th><th>HP</th><th>AC</th><th>Init</th><th>Speed</th><th>Perc.</th><th>Inv.</th><th>Ins.</th><th>DC</th></tr></thead><tbody>${rows}</tbody></table></div>
+ <div class="pg2">${cards}</div>`}
+$("pbody").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b)return;const c=b.closest(".pcard"),m=$("pm2");
+ if(!c){if(b.id=="prest"){PARTY.forEach(e=>{e.hp=e.snap.hp;e.thp=0;e.ds=[0,0];e.exh=Math.max(0,e.exh-1)});psave();pRender()}
+  else if(b.id=="psort"){PARTY.sort((x,y)=>(+y.roll||-99)-(+x.roll||-99));psave();pRender()}
+  else if(b.id=="pcopy"){const t=pBackup();const done=()=>{const mm=$("pm2");if(mm)mm.textContent="Backup copied. Keep it somewhere safe; paste it back here to restore."};const fb=()=>{$("pin").value=t;$("pin").select();$("pmsg").textContent="Couldn't copy automatically. The backup is in the box above; select it and copy."};try{navigator.clipboard.writeText(t).then(done,fb)}catch(e){fb()}}
+  else if(b.id=="pclr"){if(b.dataset.s){PARTY=[];psave();pRender()}else{b.dataset.s=1;b.textContent="Tap again to remove all";setTimeout(()=>{b.dataset.s="";b.textContent="Remove everyone"},3000)}}
+  return}
+ const e=pfind(c.dataset.id),a=b.dataset.a,amt=Math.max(0,Math.floor(+c.querySelector('[data-a="amt"]').value||0));if(!e)return;
+ if(a=="dmg"&&amt){let d=amt;const t=Math.min(e.thp,d);e.thp-=t;d-=t;e.hp=Math.max(0,e.hp-d);if(e.hp==0)e.ds=[0,0]}
+ else if(a=="heal"&&amt){e.hp=Math.min(e.snap.hp,e.hp+amt);if(e.hp>0)e.ds=[0,0]}
+ else if(a=="thp"){e.thp=amt}
+ else if(a=="cond"){const k=b.dataset.c,i=e.cond.indexOf(k);if(i>=0)e.cond.splice(i,1);else e.cond.push(k)}
+ else if(a=="pdf"){try{loadChar(e.o)}catch(x){}makeSheet("pdf");return}
+ else if(a=="sheet"||a=="edit"){try{loadChar(e.o)}catch(x){}if(a=="edit"){document.body.classList.remove("pm");$("mcr").classList.add("on");$("mpt").classList.remove("on");gGo(8);window.scrollTo(0,0)}else{makeSheet("print")}return}
+ else if(a=="rm"){if(b.dataset.s){PARTY=PARTY.filter(q=>q!==e)}else{b.dataset.s=1;b.textContent="Tap again to remove";setTimeout(()=>{b.dataset.s="";b.textContent="Remove"},3000);return}}
+ else return;
+ psave();pRender()});
+$("pbody").addEventListener("change",ev=>{const t=ev.target,c=t.closest(".pcard");if(!c)return;const e=pfind(c.dataset.id),a=t.dataset.a;if(!e)return;
+ if(a=="exh")e.exh=Math.max(0,Math.min(6,Math.floor(+t.value||0)));else if(a=="conc")e.conc=t.checked;else if(a=="insp")e.insp=t.checked;
+ else if(a=="roll")e.roll=t.value;else if(a=="note"){e.note=t.value;psave();return}
+ else if(a=="dsok"||a=="dsno"){const k=a=="dsok"?0:1,i=+t.dataset.i;e.ds[k]=t.checked?i+1:i}else return;
+ psave();pRender()});
+const pMode=on=>{document.body.classList.toggle("pm",on);$("mpt").classList.toggle("on",on);$("mcr").classList.toggle("on",!on);if(on)pRender();window.scrollTo(0,0)};
+$("mpt").onclick=()=>pMode(true);$("mcr").onclick=()=>pMode(false);
+$("padd").onclick=()=>{pIngest($("pin").value);if(PARTY.length&&!/Couldn|No character/.test($("pmsg").textContent))$("pin").value=""};
+$("pfl").addEventListener("change",async()=>{const fs=[...$("pfl").files];let all="";for(const f of fs){try{all+="\n"+await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(f)})}catch(e){}}$("pfl").value="";pIngest(all)});
+pload();
+</script></body></html>
+
+</body></html>
